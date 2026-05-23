@@ -41,6 +41,10 @@ export class EventFactory {
           attendees: params.attendees || []
         };
       
+      case EVENT_TYPES.WRITTEN_QUIZ:
+        return { ...baseEvent, type: EVENT_TYPES.WRITTEN_QUIZ, maxScore: params.maxScore || 100, duration: params.duration || 30, topic: params.topic || '' };
+      case EVENT_TYPES.VERBAL_QUIZ:
+        return { ...baseEvent, type: EVENT_TYPES.VERBAL_QUIZ, topic: params.topic || '', examiner: params.examiner || '' };
       case EVENT_TYPES.DEADLINE:
         return {
           ...baseEvent,

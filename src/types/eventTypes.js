@@ -3,7 +3,9 @@ export const EVENT_TYPES = {
   LECTURE: 'lecture',
   EXAM: 'exam',
   MEETING: 'meeting',
-  DEADLINE: 'deadline'
+  DEADLINE: 'deadline',
+  WRITTEN_QUIZ: 'written_quiz',
+  VERBAL_QUIZ: 'verbal_quiz'
 };
 
 export const PRIORITY_LEVELS = {
@@ -25,7 +27,9 @@ export const getEventTypeIcon = (type) => {
     lecture: '📚',
     exam: '📝',
     meeting: '👥',
-    deadline: '⏰'
+    deadline: '⏰',
+    written_quiz: '✏️',
+    verbal_quiz: '🗣️'
   };
   return icons[type] || '📅';
 };
