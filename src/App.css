@@ -1,89 +1,146 @@
-.app {
-  min-height: 100vh;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+﻿/* Modern Dark Theme with Better Contrast */
+@import url('https://fonts.googleapis.com/css2?family=Inter:ital,wght@0,100..900;1,100..900&display=swap');
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
 }
 
+.app {
+  min-height: 100vh;
+  background: #0a0c15;
+  font-family: 'Inter', sans-serif;
+}
+
+/* Header */
 .app-header {
-  background: rgba(255, 255, 255, 0.95);
-  padding: 2rem;
+  background: linear-gradient(135deg, #0d1117 0%, #161b22 100%);
+  padding: 2rem 2rem 1.5rem;
   text-align: center;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  border-bottom: 2px solid #30363d;
 }
 
 .app-header h1 {
   margin: 0;
-  color: #333;
+  color: #ffffff;
   font-size: 2.5rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
 }
 
 .app-header p {
   margin: 0.5rem 0 0;
-  color: #666;
+  color: #8b949e;
+  font-size: 0.95rem;
 }
 
+/* Pattern Badges */
 .pattern-badges {
   display: flex;
   justify-content: center;
-  gap: 1rem;
-  margin-top: 1rem;
+  gap: 0.75rem;
+  margin-top: 1.25rem;
   flex-wrap: wrap;
 }
 
 .badge {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  color: white;
-  padding: 0.3rem 0.8rem;
-  border-radius: 20px;
-  font-size: 0.85rem;
+  background: #1f2937;
+  color: #e5e7eb;
+  padding: 0.35rem 1rem;
+  border-radius: 40px;
+  font-size: 0.8rem;
   font-weight: 500;
+  border: 1px solid #374151;
 }
 
+.badge:hover {
+  background: #374151;
+}
+
+/* Main Layout */
 .app-main {
   display: grid;
-  grid-template-columns: 450px 1fr;
-  gap: 2rem;
-  padding: 2rem;
-  max-width: 1400px;
+  grid-template-columns: 440px 1fr;
+  gap: 1.5rem;
+  padding: 1.5rem;
+  max-width: 1600px;
   margin: 0 auto;
 }
 
+/* Make sidebar responsive */
 .sidebar {
-  background: white;
-  border-radius: 12px;
+  background: #161b22;
+  border-radius: 16px;
   padding: 1.5rem;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  border: 1px solid #30363d;
   height: fit-content;
-  max-height: calc(100vh - 200px);
-  overflow-y: auto;
+  position: sticky;
+  top: 1.5rem;
+  overflow-x: hidden;
+  min-width: 0;
+}
+
+/* Sidebar - Form Container */
+.sidebar {
+  background: #161b22;
+  border-radius: 16px;
+  padding: 1.5rem;
+  border: 1px solid #30363d;
+  height: fit-content;
+  position: sticky;
+  top: 1.5rem;
 }
 
 .sidebar h2 {
-  color: #333;
-  margin-bottom: 1rem;
-  font-size: 1.3rem;
+  color: #ffffff;
+  margin-bottom: 1.25rem;
+  font-size: 1.25rem;
+  font-weight: 600;
 }
 
+/* Content Area */
 .content {
-  background: white;
-  border-radius: 12px;
+  background: #161b22;
+  border-radius: 16px;
   padding: 1.5rem;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  border: 1px solid #30363d;
 }
 
 .content h2 {
-  color: #333;
-  margin-bottom: 1rem;
-  font-size: 1.3rem;
+  color: #ffffff;
+  margin-bottom: 1.25rem;
+  font-size: 1.25rem;
+  font-weight: 600;
 }
 
-@media (max-width: 768px) {
+/* Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #0a0c15;
+  border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #30363d;
+  border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #484f58;
+}
+
+/* Responsive */
+@media (max-width: 968px) {
   .app-main {
     grid-template-columns: 1fr;
-    gap: 1rem;
-    padding: 1rem;
   }
   
-  .app-header h1 {
-    font-size: 1.8rem;
+  .sidebar {
+    position: static;
   }
 }

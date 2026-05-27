@@ -1,42 +1,58 @@
 .event-card {
-  background: #f8f9fa;
+  background: #0d1117;
   border-radius: 12px;
-  padding: 1.2rem;
-  border-left: 4px solid #667eea;
+  padding: 1.25rem;
+  border: 1px solid #30363d;
   transition: all 0.2s ease;
   margin-bottom: 1rem;
 }
 
 .event-card:hover {
-  transform: translateX(4px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  transform: translateY(-2px);
+  border-color: #58a6ff;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
 }
 
+/* Priority borders */
 .event-card.priority-high {
-  border-left-color: #dc3545;
+  border-left: 4px solid #f85149;
 }
 
 .event-card.priority-medium {
-  border-left-color: #ffc107;
+  border-left: 4px solid #d29922;
 }
 
 .event-card.priority-low {
-  border-left-color: #28a745;
+  border-left: 4px solid #3fb950;
 }
 
+/* Soon badge */
+.soon-badge {
+  background: #f85149;
+  color: white;
+  font-size: 0.7rem;
+  font-weight: 700;
+  padding: 0.25rem 0.75rem;
+  border-radius: 20px;
+  display: inline-block;
+  margin-bottom: 0.75rem;
+  width: fit-content;
+}
+
+/* Header */
 .event-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 0.8rem;
+  margin-bottom: 1rem;
 }
 
 .event-type-badge {
   display: flex;
   align-items: center;
-  gap: 0.4rem;
-  background: #e9ecef;
-  padding: 0.25rem 0.6rem;
+  gap: 0.5rem;
+  background: #21262d;
+  padding: 0.3rem 0.8rem;
   border-radius: 20px;
 }
 
@@ -45,10 +61,10 @@
 }
 
 .event-type {
-  font-size: 0.75rem;
+  font-size: 0.7rem;
   font-weight: 600;
   text-transform: uppercase;
-  color: #555;
+  color: #e5e7eb;
 }
 
 .event-actions {
@@ -58,44 +74,55 @@
 }
 
 .event-priority {
-  font-size: 0.75rem;
+  font-size: 0.7rem;
   text-transform: capitalize;
-  color: #666;
+  padding: 0.2rem 0.5rem;
+  border-radius: 10px;
+  background: #21262d;
+  color: #e5e7eb;
 }
 
 .delete-btn {
-  background: none;
+  background: #21262d;
   border: none;
   cursor: pointer;
-  font-size: 1rem;
-  padding: 0.2rem 0.4rem;
+  font-size: 0.9rem;
+  padding: 0.3rem 0.6rem;
   border-radius: 6px;
-  transition: background 0.2s;
+  color: #e5e7eb;
+  transition: all 0.2s;
 }
 
 .delete-btn:hover {
-  background: #fee;
+  background: #f85149;
+  color: white;
 }
 
+/* Title */
 .event-title {
   margin: 0 0 0.5rem 0;
-  color: #333;
+  color: #ffffff;
   font-size: 1.2rem;
   font-weight: 600;
 }
 
+/* Description */
 .event-description {
-  color: #666;
+  color: #c9d1d9;
   margin: 0 0 1rem 0;
   font-size: 0.9rem;
-  line-height: 1.4;
+  line-height: 1.5;
 }
 
+/* Date & Time section */
 .event-datetime {
   display: flex;
   flex-direction: column;
-  gap: 0.4rem;
-  margin-bottom: 0.8rem;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+  padding: 0.75rem;
+  background: #0a0c15;
+  border-radius: 8px;
 }
 
 .datetime-item {
@@ -103,39 +130,44 @@
   align-items: center;
   gap: 0.5rem;
   font-size: 0.85rem;
-  color: #555;
+  color: #c9d1d9;
 }
 
 .datetime-icon {
   font-size: 0.9rem;
-  min-width: 20px;
+  min-width: 24px;
 }
 
+/* Location */
 .event-location {
   display: flex;
   align-items: center;
   gap: 0.5rem;
   font-size: 0.85rem;
-  color: #555;
-  margin-bottom: 0.8rem;
+  color: #c9d1d9;
+  margin-bottom: 1rem;
+  padding: 0.5rem 0.75rem;
+  background: #0a0c15;
+  border-radius: 8px;
 }
 
 .location-icon {
   font-size: 0.9rem;
-  min-width: 20px;
+  min-width: 24px;
 }
 
+/* Event specific info */
 .event-specific {
-  background: white;
-  padding: 0.5rem 0.7rem;
+  background: #21262d;
+  padding: 0.75rem;
   border-radius: 8px;
-  margin: 0.5rem 0;
+  margin: 0.75rem 0;
   font-size: 0.85rem;
   display: flex;
   align-items: center;
   gap: 0.5rem;
   flex-wrap: wrap;
-  color: #555;
+  color: #e5e7eb;
 }
 
 .specific-icon {
@@ -143,7 +175,7 @@
 }
 
 .materials-link {
-  color: #667eea;
+  color: #58a6ff;
   text-decoration: none;
   margin-left: auto;
 }
@@ -152,12 +184,13 @@
   text-decoration: underline;
 }
 
+/* Footer */
 .event-footer {
   display: flex;
   justify-content: space-between;
-  margin-top: 0.8rem;
-  padding-top: 0.8rem;
-  border-top: 1px solid #e9ecef;
+  margin-top: 0.75rem;
+  padding-top: 0.75rem;
+  border-top: 1px solid #30363d;
   font-size: 0.7rem;
-  color: #999;
+  color: #8b949e;
 }

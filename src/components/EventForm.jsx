@@ -24,6 +24,22 @@ const EventForm = ({ onEventCreated }) => {
   const handleSubmit = (e) => {
     e.preventDefault();
     
+    // DATE VALIDATION - Check for past dates
+    const now = new Date();
+    now.setHours(0, 0, 0, 0);
+    const selectedStartDate = new Date(formData.startDate);
+    selectedStartDate.setHours(0, 0, 0, 0);
+    
+    if (selectedStartDate < now) {
+      alert("❌ Cannot create events in the past! Please select a future date.");
+      return;
+    }
+    
+    if (new Date(formData.startDate) >= new Date(formData.endDate)) {
+      alert("❌ End date must be after start date!");
+      return;
+    }
+    
     const eventParams = {
       type: eventType,
       title: formData.title,
@@ -111,29 +127,29 @@ const EventForm = ({ onEventCreated }) => {
         />
       </div>
 
-      <div className="form-row">
-        <div className="form-group">
-          <label>Start Date & Time *</label>
-          <input
-            type="datetime-local"
-            name="startDate"
-            value={formData.startDate}
-            onChange={handleChange}
-            required
-          />
-        </div>
+    <div className="form-row">
+    <div className="form-group">
+        <label>📅 Start *</label>
+        <input
+        type="datetime-local"
+        name="startDate"
+        value={formData.startDate}
+        onChange={handleChange}
+        required
+        />
+    </div>
 
-        <div className="form-group">
-          <label>End Date & Time *</label>
-          <input
-            type="datetime-local"
-            name="endDate"
-            value={formData.endDate}
-            onChange={handleChange}
-            required
-          />
-        </div>
-      </div>
+    <div className="form-group">
+        <label>⏰ End *</label>
+        <input
+        type="datetime-local"
+        name="endDate"
+        value={formData.endDate}
+        onChange={handleChange}
+        required
+        />
+    </div>
+    </div>
 
       <div className="form-row">
         <div className="form-group">

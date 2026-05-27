@@ -10,32 +10,33 @@
   gap: 0.5rem;
   flex-wrap: wrap;
   padding-bottom: 1rem;
-  border-bottom: 1px solid #eee;
+  border-bottom: 1px solid #30363d;
 }
 
 .sort-controls span {
-  font-size: 0.9rem;
-  color: #666;
+  font-size: 0.85rem;
+  color: #c9d1d9;
   font-weight: 500;
 }
 
 .sort-btn {
-  background: #f0f0f0;
-  border: none;
-  padding: 0.4rem 0.8rem;
-  border-radius: 6px;
+  background: #21262d;
+  border: 1px solid #30363d;
+  padding: 0.4rem 1rem;
+  border-radius: 20px;
   cursor: pointer;
-  font-size: 0.85rem;
+  font-size: 0.8rem;
+  color: #e5e7eb;
   transition: all 0.2s;
 }
 
 .sort-btn:hover {
-  background: #667eea;
-  color: white;
+  background: #30363d;
+  border-color: #58a6ff;
 }
 
 .event-list {
-  max-height: 600px;
+  max-height: 65vh;
   overflow-y: auto;
   display: flex;
   flex-direction: column;
@@ -44,25 +45,24 @@
 
 .no-events {
   text-align: center;
-  color: #999;
+  color: #8b949e;
   padding: 3rem;
-  font-size: 1.1rem;
+  font-size: 0.9rem;
+  background: #0d1117;
+  border-radius: 12px;
+  border: 1px dashed #30363d;
 }
 
 .event-list::-webkit-scrollbar {
-  width: 8px;
+  width: 6px;
 }
 
 .event-list::-webkit-scrollbar-track {
-  background: #f1f1f1;
+  background: #0a0c15;
   border-radius: 10px;
 }
 
 .event-list::-webkit-scrollbar-thumb {
-  background: #888;
+  background: #30363d;
   border-radius: 10px;
-}
-
-.event-list::-webkit-scrollbar-thumb:hover {
-  background: #555;
 }
