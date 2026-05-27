@@ -21,8 +21,22 @@ const EventForm = ({ onEventCreated }) => {
     pointsWorth: 0
   });
 
+  const handleChange = (e) => {
+    const { name, value, type, checked } = e.target;
+    setFormData({
+      ...formData,
+      [name]: type === 'checkbox' ? checked : value
+    });
+  };
+
   const handleSubmit = (e) => {
     e.preventDefault();
+    
+    // Check if dates are empty
+    if (!formData.startDate || !formData.endDate) {
+      alert("❌ Please select both start date and end date!");
+      return;
+    }
     
     // DATE VALIDATION - Check for past dates
     const now = new Date();
@@ -67,6 +81,7 @@ const EventForm = ({ onEventCreated }) => {
     const newEvent = EventFactory.createEvent(eventParams);
     onEventCreated(newEvent);
     
+    // Reset form
     setFormData({
       title: '',
       description: '',
@@ -82,14 +97,7 @@ const EventForm = ({ onEventCreated }) => {
       submissionRequired: false,
       pointsWorth: 0
     });
-  };
-
-  const handleChange = (e) => {
-    const { name, value, type, checked } = e.target;
-    setFormData({
-      ...formData,
-      [name]: type === 'checkbox' ? checked : value
-    });
+    setEventType(EVENT_TYPES.LECTURE);
   };
 
   return (
@@ -127,29 +135,29 @@ const EventForm = ({ onEventCreated }) => {
         />
       </div>
 
-    <div className="form-row">
-    <div className="form-group">
-        <label>📅 Start *</label>
-        <input
-        type="datetime-local"
-        name="startDate"
-        value={formData.startDate}
-        onChange={handleChange}
-        required
-        />
-    </div>
+      <div className="form-row">
+        <div className="form-group">
+          <label>📅 Start *</label>
+          <input
+            type="datetime-local"
+            name="startDate"
+            value={formData.startDate}
+            onChange={handleChange}
+            required
+          />
+        </div>
 
-    <div className="form-group">
-        <label>⏰ End *</label>
-        <input
-        type="datetime-local"
-        name="endDate"
-        value={formData.endDate}
-        onChange={handleChange}
-        required
-        />
-    </div>
-    </div>
+        <div className="form-group">
+          <label>⏰ End *</label>
+          <input
+            type="datetime-local"
+            name="endDate"
+            value={formData.endDate}
+            onChange={handleChange}
+            required
+          />
+        </div>
+      </div>
 
       <div className="form-row">
         <div className="form-group">
@@ -239,7 +247,7 @@ const EventForm = ({ onEventCreated }) => {
       {eventType === EVENT_TYPES.DEADLINE && (
         <div className="form-row">
           <div className="form-group">
-            <label>
+            <label className="checkbox-label">
               <input
                 type="checkbox"
                 name="submissionRequired"

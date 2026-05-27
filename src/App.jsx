@@ -18,7 +18,7 @@ function App() {
         createdAt: new Date(event.createdAt)
       }));
     }
-    // Default sample data for final project
+    // Default sample data
     return [
       {
         id: '1',
