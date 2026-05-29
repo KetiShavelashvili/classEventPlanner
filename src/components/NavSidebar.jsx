@@ -6,7 +6,7 @@ const NAV_ITEMS = [
   { id: 'past',      label: 'Past Events', icon: '🗂️' },
 ];
 
-const NavSidebar = ({ currentPage, onNavigate, user, upcomingCount, pastCount, onLogout }) => {
+const NavSidebar = ({ currentPage, onNavigate, user, upcomingCount, pastCount, onLogout, theme, onToggleTheme }) => {
   const counts = { dashboard: upcomingCount, past: pastCount };
 
   return (
@@ -52,6 +52,9 @@ const NavSidebar = ({ currentPage, onNavigate, user, upcomingCount, pastCount, o
               </span>
             </div>
           </div>
+          <button className="nav-theme-btn" onClick={onToggleTheme}>
+            {theme === 'dark' ? '☀️ Light Mode' : '🌙 Dark Mode'}
+          </button>
           <button className="nav-logout-btn" onClick={onLogout} title="Log out">
             🚪 Log Out
           </button>

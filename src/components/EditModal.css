@@ -1,7 +1,7 @@
 .modal-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.7);
+  background: rgba(0, 0, 0, 0.6);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -10,8 +10,8 @@
 }
 
 .modal-content {
-  background: #161b22;
-  border: 1px solid #30363d;
+  background: var(--bg-surface);
+  border: 1px solid var(--border);
   border-radius: 12px;
   width: 100%;
   max-width: 600px;
@@ -26,19 +26,19 @@
   align-items: center;
   margin-bottom: 1.5rem;
   padding-bottom: 1rem;
-  border-bottom: 1px solid #30363d;
+  border-bottom: 1px solid var(--border);
 }
 
 .modal-header h2 {
   margin: 0;
-  color: #ffffff;
+  color: var(--text-primary);
   font-size: 1.25rem;
 }
 
 .modal-close-btn {
-  background: #21262d;
+  background: var(--bg-elevated);
   border: none;
-  color: #e5e7eb;
+  color: var(--text-secondary);
   font-size: 1rem;
   cursor: pointer;
   padding: 0.3rem 0.6rem;
@@ -47,7 +47,7 @@
 }
 
 .modal-close-btn:hover {
-  background: #f85149;
+  background: var(--accent-red);
   color: white;
 }
 
@@ -57,26 +57,27 @@
   justify-content: flex-end;
   margin-top: 1.25rem;
   padding-top: 1rem;
-  border-top: 1px solid #30363d;
+  border-top: 1px solid var(--border);
 }
 
 .cancel-btn {
-  background: #21262d;
-  border: 1px solid #30363d;
-  color: #e5e7eb;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  color: var(--text-secondary);
   padding: 0.6rem 1.2rem;
   border-radius: 8px;
   cursor: pointer;
   font-size: 0.9rem;
   transition: background 0.2s;
+  font-family: 'Inter', sans-serif;
 }
 
 .cancel-btn:hover {
-  background: #30363d;
+  background: var(--border);
 }
 
 .save-btn {
-  background: #388bfd;
+  background: var(--accent-blue);
   border: none;
   color: white;
   padding: 0.6rem 1.2rem;
@@ -85,8 +86,9 @@
   font-size: 0.9rem;
   font-weight: 600;
   transition: background 0.2s;
+  font-family: 'Inter', sans-serif;
 }
 
 .save-btn:hover {
-  background: #58a6ff;
+  background: var(--accent-blue-hover);
 }

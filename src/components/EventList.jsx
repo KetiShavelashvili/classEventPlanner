@@ -2,41 +2,63 @@ import React, { useState, useEffect } from 'react';
 import EventCard from './EventCard';
 import { SortByDate } from '../strategies/SortByDate';
 import { SortByPriority } from '../strategies/SortByPriority';
-import { SortByType } from '../strategies/SortByType';
 import './EventList.css';
+
+const TYPE_OPTIONS = [
+  { value: 'all',      label: 'All Types' },
+  { value: 'lecture',  label: '📚 Lecture' },
+  { value: 'exam',     label: '📝 Exam' },
+  { value: 'meeting',  label: '👥 Meeting' },
+  { value: 'deadline', label: '⏰ Deadline' },
+];
 
 const EventList = ({ events, onDeleteEvent, onEditEvent, isTeacher }) => {
   const [sortStrategy, setSortStrategy] = useState(new SortByDate());
-  const [sortedEvents, setSortedEvents] = useState([]);
+  const [typeFilter, setTypeFilter] = useState('all');
+  const [displayedEvents, setDisplayedEvents] = useState([]);
 
   useEffect(() => {
-    setSortedEvents(sortStrategy.sort(events));
-  }, [events, sortStrategy]);
-
-  const handleSort = (strategy) => {
-    setSortStrategy(strategy);
-  };
+    const sorted = sortStrategy.sort(events);
+    const filtered = typeFilter === 'all'
+      ? sorted
+      : sorted.filter(e => e.type === typeFilter);
+    setDisplayedEvents(filtered);
+  }, [events, sortStrategy, typeFilter]);
 
   return (
     <div className="event-list-container">
       <div className="sort-controls">
         <span>📊 Sort by:</span>
-        <button onClick={() => handleSort(new SortByDate())} className="sort-btn">
+        <button onClick={() => setSortStrategy(new SortByDate())} className="sort-btn">
           📅 Date
         </button>
-        <button onClick={() => handleSort(new SortByPriority())} className="sort-btn">
+        <button onClick={() => setSortStrategy(new SortByPriority())} className="sort-btn">
           ⚡ Priority
         </button>
-        <button onClick={() => handleSort(new SortByType())} className="sort-btn">
-          🏷️ Type
-        </button>
+
+        <div className="filter-divider" />
+
+        <span>🏷️ Filter:</span>
+        <select
+          className="type-filter-select"
+          value={typeFilter}
+          onChange={e => setTypeFilter(e.target.value)}
+        >
+          {TYPE_OPTIONS.map(opt => (
+            <option key={opt.value} value={opt.value}>{opt.label}</option>
+          ))}
+        </select>
       </div>
-      
+
       <div className="event-list">
-        {sortedEvents.length === 0 ? (
-          <p className="no-events">✨ No events yet. Create your first event!</p>
+        {displayedEvents.length === 0 ? (
+          <p className="no-events">
+            {typeFilter === 'all'
+              ? '✨ No events yet. Create your first event!'
+              : `No ${typeFilter} events found.`}
+          </p>
         ) : (
-          sortedEvents.map(event => (
+          displayedEvents.map(event => (
             <EventCard
               key={event.id}
               event={event}

@@ -5,8 +5,8 @@
 }
 
 .past-events-header {
-  background: #161b22;
-  border: 1px solid #30363d;
+  background: var(--bg-surface);
+  border: 1px solid var(--border);
   border-radius: 16px;
   padding: 1.5rem;
   margin-bottom: 1.5rem;
@@ -16,25 +16,25 @@
 }
 
 .past-events-header h2 {
-  color: #ffffff;
+  color: var(--text-primary);
   font-size: 1.4rem;
   font-weight: 600;
   margin: 0 0 0.25rem 0;
 }
 
 .past-events-subtitle {
-  color: #8b949e;
+  color: var(--text-muted);
   font-size: 0.9rem;
   margin: 0;
 }
 
 .past-events-empty {
-  background: #161b22;
-  border: 1px solid #30363d;
+  background: var(--bg-surface);
+  border: 1px solid var(--border);
   border-radius: 16px;
   padding: 4rem 2rem;
   text-align: center;
-  color: #8b949e;
+  color: var(--text-muted);
 }
 
 .empty-icon {

@@ -1,34 +1,26 @@
 .event-card {
-  background: #0d1117;
+  background: var(--bg-inset);
   border-radius: 12px;
   padding: 1.25rem;
-  border: 1px solid #30363d;
+  border: 1px solid var(--border);
   transition: all 0.2s ease;
   margin-bottom: 1rem;
 }
 
 .event-card:hover {
   transform: translateY(-2px);
-  border-color: #58a6ff;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+  border-color: var(--accent-primary);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
 }
 
 /* Priority borders */
-.event-card.priority-high {
-  border-left: 4px solid #f85149;
-}
-
-.event-card.priority-medium {
-  border-left: 4px solid #d29922;
-}
-
-.event-card.priority-low {
-  border-left: 4px solid #3fb950;
-}
+.event-card.priority-high   { border-left: 4px solid var(--priority-high); }
+.event-card.priority-medium { border-left: 4px solid var(--priority-medium); }
+.event-card.priority-low    { border-left: 4px solid var(--priority-low); }
 
 /* Soon badge */
 .soon-badge {
-  background: #f85149;
+  background: var(--accent-red);
   color: white;
   font-size: 0.7rem;
   font-weight: 700;
@@ -51,20 +43,18 @@
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  background: #21262d;
+  background: var(--bg-elevated);
   padding: 0.3rem 0.8rem;
   border-radius: 20px;
 }
 
-.event-icon {
-  font-size: 1rem;
-}
+.event-icon  { font-size: 1rem; }
 
 .event-type {
   font-size: 0.7rem;
   font-weight: 600;
   text-transform: uppercase;
-  color: #e5e7eb;
+  color: var(--text-secondary);
 }
 
 .event-actions {
@@ -78,12 +68,12 @@
   text-transform: capitalize;
   padding: 0.2rem 0.5rem;
   border-radius: 10px;
-  background: #21262d;
-  color: #e5e7eb;
+  background: var(--bg-elevated);
+  color: var(--text-secondary);
 }
 
 .edit-btn {
-  background: #388bfd;
+  background: var(--accent-blue);
   border: none;
   cursor: pointer;
   font-size: 0.9rem;
@@ -94,11 +84,11 @@
 }
 
 .edit-btn:hover {
-  background: #58a6ff;
+  background: var(--accent-blue-hover);
 }
 
 .delete-btn {
-  background: #f85149;
+  background: var(--accent-red);
   border: none;
   cursor: pointer;
   font-size: 0.9rem;
@@ -109,20 +99,20 @@
 }
 
 .delete-btn:hover {
-  background: #da3633;
+  background: var(--accent-red-hover);
 }
 
 /* Title */
 .event-title {
   margin: 0 0 0.5rem 0;
-  color: #ffffff;
+  color: var(--text-primary);
   font-size: 1.2rem;
   font-weight: 600;
 }
 
 /* Description */
 .event-description {
-  color: #c9d1d9;
+  color: var(--text-secondary);
   margin: 0 0 1rem 0;
   font-size: 0.9rem;
   line-height: 1.5;
@@ -135,7 +125,7 @@
   gap: 0.5rem;
   margin-bottom: 1rem;
   padding: 0.75rem;
-  background: #0a0c15;
+  background: var(--bg-base);
   border-radius: 8px;
 }
 
@@ -144,13 +134,10 @@
   align-items: center;
   gap: 0.5rem;
   font-size: 0.85rem;
-  color: #c9d1d9;
+  color: var(--text-secondary);
 }
 
-.datetime-icon {
-  font-size: 0.9rem;
-  min-width: 24px;
-}
+.datetime-icon { font-size: 0.9rem; min-width: 24px; }
 
 /* Location */
 .event-location {
@@ -158,21 +145,18 @@
   align-items: center;
   gap: 0.5rem;
   font-size: 0.85rem;
-  color: #c9d1d9;
+  color: var(--text-secondary);
   margin-bottom: 1rem;
   padding: 0.5rem 0.75rem;
-  background: #0a0c15;
+  background: var(--bg-base);
   border-radius: 8px;
 }
 
-.location-icon {
-  font-size: 0.9rem;
-  min-width: 24px;
-}
+.location-icon { font-size: 0.9rem; min-width: 24px; }
 
-/* Event specific info */
+/* Event-specific info */
 .event-specific {
-  background: #21262d;
+  background: var(--bg-elevated);
   padding: 0.75rem;
   border-radius: 8px;
   margin: 0.75rem 0;
@@ -181,22 +165,18 @@
   align-items: center;
   gap: 0.5rem;
   flex-wrap: wrap;
-  color: #e5e7eb;
+  color: var(--text-secondary);
 }
 
-.specific-icon {
-  font-size: 0.9rem;
-}
+.specific-icon { font-size: 0.9rem; }
 
 .materials-link {
-  color: #58a6ff;
+  color: var(--accent-blue);
   text-decoration: none;
   margin-left: auto;
 }
 
-.materials-link:hover {
-  text-decoration: underline;
-}
+.materials-link:hover { text-decoration: underline; }
 
 /* Footer */
 .event-footer {
@@ -204,7 +184,7 @@
   justify-content: space-between;
   margin-top: 0.75rem;
   padding-top: 0.75rem;
-  border-top: 1px solid #30363d;
+  border-top: 1px solid var(--border);
   font-size: 0.7rem;
-  color: #8b949e;
+  color: var(--text-muted);
 }

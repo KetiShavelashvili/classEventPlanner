@@ -1,16 +1,8 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:ital,wght@0,100..900;1,100..900&display=swap');
-
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-}
-
 /* Full-height app: sidebar + content fill viewport */
 .app {
   height: 100vh;
   overflow: hidden;
-  background: #0a0c15;
+  background: var(--bg-base);
   font-family: 'Inter', sans-serif;
   display: flex;
   flex-direction: column;
@@ -33,16 +25,16 @@
 
 /* Header */
 .app-header {
-  background: linear-gradient(135deg, #0d1117 0%, #161b22 100%);
+  background: linear-gradient(135deg, var(--bg-inset) 0%, var(--bg-surface) 100%);
   padding: 1.5rem 2rem;
   text-align: center;
-  border-bottom: 1px solid #30363d;
+  border-bottom: 1px solid var(--border);
   flex-shrink: 0;
 }
 
 .app-header h1 {
   margin: 0;
-  color: #ffffff;
+  color: var(--text-primary);
   font-size: 2rem;
   font-weight: 700;
   letter-spacing: -0.02em;
@@ -50,7 +42,7 @@
 
 .app-header p {
   margin: 0.35rem 0 0;
-  color: #8b949e;
+  color: var(--text-muted);
   font-size: 0.875rem;
 }
 
@@ -64,16 +56,21 @@
 }
 
 .badge {
-  background: #1f2937;
-  color: #e5e7eb;
+  background: var(--bg-elevated);
+  color: var(--text-secondary);
   padding: 0.3rem 0.85rem;
   border-radius: 40px;
   font-size: 0.75rem;
   font-weight: 500;
-  border: 1px solid #374151;
+  border: 1px solid var(--border);
+  transition: background 0.2s;
 }
 
-/* Main Layout — teacher: form sidebar + list */
+.badge:hover {
+  background: var(--border);
+}
+
+/* Main layout — teacher: form sidebar + list */
 .app-main {
   display: grid;
   grid-template-columns: 420px 1fr;
@@ -83,16 +80,16 @@
   align-items: start;
 }
 
-/* Student view: no form, full-width event list */
+/* Student view: no form, full-width list */
 .app-main-student {
   grid-template-columns: 1fr;
 }
 
 .sidebar {
-  background: #161b22;
+  background: var(--bg-surface);
   border-radius: 16px;
   padding: 1.5rem;
-  border: 1px solid #30363d;
+  border: 1px solid var(--border);
   height: fit-content;
   position: sticky;
   top: 1.5rem;
@@ -101,53 +98,34 @@
 }
 
 .sidebar h2 {
-  color: #ffffff;
+  color: var(--text-primary);
   margin-bottom: 1.25rem;
   font-size: 1.1rem;
   font-weight: 600;
 }
 
 .content {
-  background: #161b22;
+  background: var(--bg-surface);
   border-radius: 16px;
   padding: 1.5rem;
-  border: 1px solid #30363d;
+  border: 1px solid var(--border);
 }
 
 .content h2 {
-  color: #ffffff;
+  color: var(--text-primary);
   margin-bottom: 1.25rem;
   font-size: 1.1rem;
   font-weight: 600;
 }
 
 /* Scrollbar */
-::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
-}
-
-::-webkit-scrollbar-track {
-  background: #0a0c15;
-  border-radius: 10px;
-}
-
-::-webkit-scrollbar-thumb {
-  background: #30363d;
-  border-radius: 10px;
-}
-
-::-webkit-scrollbar-thumb:hover {
-  background: #484f58;
-}
+::-webkit-scrollbar { width: 8px; height: 8px; }
+::-webkit-scrollbar-track { background: var(--bg-base); border-radius: 10px; }
+::-webkit-scrollbar-thumb { background: var(--border); border-radius: 10px; }
+::-webkit-scrollbar-thumb:hover { background: var(--text-faint); }
 
 /* Responsive */
 @media (max-width: 968px) {
-  .app-main {
-    grid-template-columns: 1fr;
-  }
-
-  .sidebar {
-    position: static;
-  }
+  .app-main { grid-template-columns: 1fr; }
+  .sidebar { position: static; }
 }

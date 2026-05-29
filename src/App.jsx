@@ -9,9 +9,17 @@ import { EVENT_TYPES, PRIORITY_LEVELS } from './types/eventTypes';
 import './App.css';
 
 function App() {
+  const [theme, setTheme] = useState(() => localStorage.getItem('theme') || 'dark');
   const [user, setUser] = useState(null);
   const [currentPage, setCurrentPage] = useState('dashboard');
   const [editingEvent, setEditingEvent] = useState(null);
+
+  useEffect(() => {
+    document.documentElement.setAttribute('data-theme', theme);
+    localStorage.setItem('theme', theme);
+  }, [theme]);
+
+  const toggleTheme = () => setTheme(t => t === 'dark' ? 'light' : 'dark');
 
   const [events, setEvents] = useState(() => {
     const saved = localStorage.getItem('classEvents');
@@ -141,6 +149,8 @@ function App() {
           upcomingCount={upcomingEvents.length}
           pastCount={pastEvents.length}
           onLogout={handleLogout}
+          theme={theme}
+          onToggleTheme={toggleTheme}
         />
 
         <div className="app-content">
