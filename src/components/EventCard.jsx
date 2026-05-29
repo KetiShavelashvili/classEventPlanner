@@ -2,7 +2,7 @@ import React from 'react';
 import { getEventTypeIcon, getPriorityEmoji } from '../types/eventTypes';
 import './EventCard.css';
 
-const EventCard = ({ event, onDelete }) => {
+const EventCard = ({ event, onDelete, onEdit, isTeacher }) => {
   const formatDate = (date) => {
     return date.toLocaleDateString('en-US', { 
       month: 'short', 
@@ -47,9 +47,16 @@ const EventCard = ({ event, onDelete }) => {
         </div>
         <div className="event-actions">
           <span className="event-priority">{getPriorityEmoji(event.priority)} {event.priority}</span>
-          <button onClick={() => onDelete(event.id)} className="delete-btn" title="Delete event">
-            🗑️
-          </button>
+          {isTeacher && (
+            <>
+              <button onClick={() => onEdit(event)} className="edit-btn" title="Edit event">
+                ✏️
+              </button>
+              <button onClick={() => onDelete(event.id)} className="delete-btn" title="Delete event">
+                🗑️
+              </button>
+            </>
+          )}
         </div>
       </div>
       

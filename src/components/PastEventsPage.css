@@ -1,0 +1,48 @@
+.past-events-page {
+  max-width: 1600px;
+  margin: 0 auto;
+  padding: 1.5rem;
+}
+
+.past-events-header {
+  background: #161b22;
+  border: 1px solid #30363d;
+  border-radius: 16px;
+  padding: 1.5rem;
+  margin-bottom: 1.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.past-events-header h2 {
+  color: #ffffff;
+  font-size: 1.4rem;
+  font-weight: 600;
+  margin: 0 0 0.25rem 0;
+}
+
+.past-events-subtitle {
+  color: #8b949e;
+  font-size: 0.9rem;
+  margin: 0;
+}
+
+.past-events-empty {
+  background: #161b22;
+  border: 1px solid #30363d;
+  border-radius: 16px;
+  padding: 4rem 2rem;
+  text-align: center;
+  color: #8b949e;
+}
+
+.empty-icon {
+  font-size: 3rem;
+  display: block;
+  margin-bottom: 1rem;
+}
+
+.past-events-empty p {
+  font-size: 1rem;
+}

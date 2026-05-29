@@ -5,7 +5,7 @@ import { SortByPriority } from '../strategies/SortByPriority';
 import { SortByType } from '../strategies/SortByType';
 import './EventList.css';
 
-const EventList = ({ events, onDeleteEvent }) => {
+const EventList = ({ events, onDeleteEvent, onEditEvent, isTeacher }) => {
   const [sortStrategy, setSortStrategy] = useState(new SortByDate());
   const [sortedEvents, setSortedEvents] = useState([]);
 
@@ -37,10 +37,12 @@ const EventList = ({ events, onDeleteEvent }) => {
           <p className="no-events">✨ No events yet. Create your first event!</p>
         ) : (
           sortedEvents.map(event => (
-            <EventCard 
-              key={event.id} 
-              event={event} 
+            <EventCard
+              key={event.id}
+              event={event}
               onDelete={onDeleteEvent}
+              onEdit={onEditEvent}
+              isTeacher={isTeacher}
             />
           ))
         )}

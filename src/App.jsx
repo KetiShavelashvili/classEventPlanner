@@ -1,15 +1,21 @@
-﻿import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import EventList from './components/EventList';
 import EventForm from './components/EventForm';
+import EditModal from './components/EditModal';
+import PastEventsPage from './components/PastEventsPage';
+import LoginPage from './components/LoginPage';
+import NavSidebar from './components/NavSidebar';
 import { EVENT_TYPES, PRIORITY_LEVELS } from './types/eventTypes';
 import './App.css';
 
 function App() {
-  // Load saved events from localStorage
+  const [user, setUser] = useState(null);
+  const [currentPage, setCurrentPage] = useState('dashboard');
+  const [editingEvent, setEditingEvent] = useState(null);
+
   const [events, setEvents] = useState(() => {
     const saved = localStorage.getItem('classEvents');
     if (saved) {
-      // Convert date strings back to Date objects
       const parsed = JSON.parse(saved);
       return parsed.map(event => ({
         ...event,
@@ -18,7 +24,6 @@ function App() {
         createdAt: new Date(event.createdAt)
       }));
     }
-    // Default sample data
     return [
       {
         id: '1',
@@ -93,43 +98,101 @@ function App() {
     ];
   });
 
-  // Save to localStorage whenever events change
   useEffect(() => {
     localStorage.setItem('classEvents', JSON.stringify(events));
   }, [events]);
 
-  const addEvent = (event) => {
-    setEvents([event, ...events]);
+  const addEvent = (event) => setEvents([event, ...events]);
+
+  const deleteEvent = (eventId) => setEvents(events.filter(e => e.id !== eventId));
+
+  const updateEvent = (updatedEvent) => {
+    setEvents(events.map(e => e.id === updatedEvent.id ? updatedEvent : e));
+    setEditingEvent(null);
   };
 
-  const deleteEvent = (eventId) => {
-    setEvents(events.filter(event => event.id !== eventId));
+  const handleLogin = (userData) => {
+    setUser(userData);
+    setCurrentPage('dashboard');
   };
+
+  const handleLogout = () => {
+    setUser(null);
+    setCurrentPage('dashboard');
+    setEditingEvent(null);
+  };
+
+  if (!user) {
+    return <LoginPage onLogin={handleLogin} />;
+  }
+
+  const now = new Date();
+  const isTeacher = user.role === 'teacher';
+  const upcomingEvents = events.filter(e => new Date(e.startDate) >= now);
+  const pastEvents = events.filter(e => new Date(e.startDate) < now);
 
   return (
     <div className="app">
-      <header className="app-header">
-        <h1>📅 Class Event Planner</h1>
-        <p>Design Patterns Demo: Factory • Strategy • Observer • Decorator</p>
-        <div className="pattern-badges">
-          <span className="badge">🏭 Factory Method</span>
-          <span className="badge">🎯 Strategy</span>
-          <span className="badge">👁️ Observer</span>
-          <span className="badge">🎨 Decorator</span>
+      <div className="app-body">
+        <NavSidebar
+          currentPage={currentPage}
+          onNavigate={setCurrentPage}
+          user={user}
+          upcomingCount={upcomingEvents.length}
+          pastCount={pastEvents.length}
+          onLogout={handleLogout}
+        />
+
+        <div className="app-content">
+          <header className="app-header">
+            <h1>📅 Class Event Planner</h1>
+            <p>Design Patterns Demo: Factory • Strategy • Observer • Decorator</p>
+            <div className="pattern-badges">
+              <span className="badge">🏭 Factory Method</span>
+              <span className="badge">🎯 Strategy</span>
+              <span className="badge">👁️ Observer</span>
+              <span className="badge">🎨 Decorator</span>
+            </div>
+          </header>
+
+          {currentPage === 'dashboard' && (
+            <main className={`app-main ${!isTeacher ? 'app-main-student' : ''}`}>
+              {isTeacher && (
+                <aside className="sidebar">
+                  <h2>➕ Create New Event</h2>
+                  <EventForm onEventCreated={addEvent} />
+                </aside>
+              )}
+              <section className="content">
+                <h2>📋 Upcoming Events ({upcomingEvents.length})</h2>
+                <EventList
+                  events={upcomingEvents}
+                  onDeleteEvent={deleteEvent}
+                  onEditEvent={setEditingEvent}
+                  isTeacher={isTeacher}
+                />
+              </section>
+            </main>
+          )}
+
+          {currentPage === 'past' && (
+            <PastEventsPage
+              events={pastEvents}
+              onDeleteEvent={deleteEvent}
+              onEditEvent={setEditingEvent}
+              isTeacher={isTeacher}
+            />
+          )}
         </div>
-      </header>
-      
-      <main className="app-main">
-        <aside className="sidebar">
-          <h2>➕ Create New Event</h2>
-          <EventForm onEventCreated={addEvent} />
-        </aside>
-        
-        <section className="content">
-          <h2>📋 Events ({events.length})</h2>
-          <EventList events={events} onDeleteEvent={deleteEvent} />
-        </section>
-      </main>
+      </div>
+
+      {editingEvent && (
+        <EditModal
+          event={editingEvent}
+          onSave={updateEvent}
+          onClose={() => setEditingEvent(null)}
+        />
+      )}
     </div>
   );
 }

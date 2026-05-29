@@ -36,8 +36,6 @@
 }
 
 .event-list {
-  max-height: 65vh;
-  overflow-y: auto;
   display: flex;
   flex-direction: column;
   gap: 1rem;
@@ -53,16 +51,3 @@
   border: 1px dashed #30363d;
 }
 
-.event-list::-webkit-scrollbar {
-  width: 6px;
-}
-
-.event-list::-webkit-scrollbar-track {
-  background: #0a0c15;
-  border-radius: 10px;
-}
-
-.event-list::-webkit-scrollbar-thumb {
-  background: #30363d;
-  border-radius: 10px;
-}

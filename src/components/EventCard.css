@@ -82,20 +82,34 @@
   color: #e5e7eb;
 }
 
-.delete-btn {
-  background: #21262d;
+.edit-btn {
+  background: #388bfd;
   border: none;
   cursor: pointer;
   font-size: 0.9rem;
   padding: 0.3rem 0.6rem;
   border-radius: 6px;
-  color: #e5e7eb;
+  color: white;
+  transition: all 0.2s;
+}
+
+.edit-btn:hover {
+  background: #58a6ff;
+}
+
+.delete-btn {
+  background: #f85149;
+  border: none;
+  cursor: pointer;
+  font-size: 0.9rem;
+  padding: 0.3rem 0.6rem;
+  border-radius: 6px;
+  color: white;
   transition: all 0.2s;
 }
 
 .delete-btn:hover {
-  background: #f85149;
-  color: white;
+  background: #da3633;
 }
 
 /* Title */
