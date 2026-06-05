@@ -162,3 +162,51 @@
 .login-submit-btn:hover {
   background: var(--accent-primary-hover);
 }
+
+.login-submit-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.login-mode-tabs {
+  display: flex;
+  gap: 0;
+  margin-bottom: 1.5rem;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.mode-tab {
+  flex: 1;
+  padding: 0.6rem;
+  background: var(--bg-inset);
+  border: none;
+  color: var(--text-muted);
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: 'Inter', sans-serif;
+  transition: all 0.2s;
+}
+
+.mode-tab-active {
+  background: var(--accent-primary);
+  color: white;
+}
+
+.login-hint {
+  text-align: center;
+  color: var(--text-muted);
+  font-size: 0.78rem;
+  margin: 1rem 0 0;
+}
+
+.login-hint code {
+  background: var(--bg-inset);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 0.1rem 0.35rem;
+  font-size: 0.77rem;
+  color: var(--text-secondary);
+}

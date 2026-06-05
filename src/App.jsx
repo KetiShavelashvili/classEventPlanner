@@ -1,122 +1,89 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import EventList from './components/EventList';
 import EventForm from './components/EventForm';
 import EditModal from './components/EditModal';
 import PastEventsPage from './components/PastEventsPage';
 import LoginPage from './components/LoginPage';
 import NavSidebar from './components/NavSidebar';
-import { EVENT_TYPES, PRIORITY_LEVELS } from './types/eventTypes';
 import './App.css';
+
+function apiFetch(path, options = {}) {
+  const token = localStorage.getItem('authToken');
+  return fetch(path, {
+    ...options,
+    headers: {
+      'Content-Type': 'application/json',
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
+      ...options.headers,
+    },
+  });
+}
 
 function App() {
   const [theme, setTheme] = useState(() => localStorage.getItem('theme') || 'dark');
   const [user, setUser] = useState(null);
+  const [authChecked, setAuthChecked] = useState(false);
   const [currentPage, setCurrentPage] = useState('dashboard');
   const [editingEvent, setEditingEvent] = useState(null);
+  const [events, setEvents] = useState([]);
 
   useEffect(() => {
     document.documentElement.setAttribute('data-theme', theme);
     localStorage.setItem('theme', theme);
   }, [theme]);
 
+  // Restore session from stored JWT
+  useEffect(() => {
+    const token = localStorage.getItem('authToken');
+    if (!token) { setAuthChecked(true); return; }
+    fetch('/api/auth/verify', { headers: { Authorization: `Bearer ${token}` } })
+      .then(res => res.ok ? res.json() : Promise.reject())
+      .then(data => setUser(data.user))
+      .catch(() => localStorage.removeItem('authToken'))
+      .finally(() => setAuthChecked(true));
+  }, []);
+
+  const fetchEvents = useCallback(() => {
+    apiFetch('/api/events')
+      .then(res => res.ok ? res.json() : Promise.reject())
+      .then(setEvents)
+      .catch(() => {});
+  }, []);
+
+  // Load events whenever the user logs in
+  useEffect(() => {
+    if (user) fetchEvents();
+    else setEvents([]);
+  }, [user, fetchEvents]);
+
   const toggleTheme = () => setTheme(t => t === 'dark' ? 'light' : 'dark');
 
-  const [events, setEvents] = useState(() => {
-    const saved = localStorage.getItem('classEvents');
-    if (saved) {
-      const parsed = JSON.parse(saved);
-      return parsed.map(event => ({
-        ...event,
-        startDate: new Date(event.startDate),
-        endDate: new Date(event.endDate),
-        createdAt: new Date(event.createdAt)
-      }));
+  const addEvent = async (event) => {
+    const res = await apiFetch('/api/events', {
+      method: 'POST',
+      body: JSON.stringify(event),
+    });
+    if (res.ok) {
+      const created = await res.json();
+      setEvents(prev => [created, ...prev]);
     }
-    return [
-      {
-        id: '1',
-        title: 'Design Patterns Lecture',
-        description: 'Learn about Observer, Factory, Strategy, and Decorator patterns',
-        type: EVENT_TYPES.LECTURE,
-        startDate: new Date(2026, 4, 28, 10, 0),
-        endDate: new Date(2026, 4, 28, 12, 0),
-        location: 'Room 101',
-        priority: PRIORITY_LEVELS.HIGH,
-        createdBy: 'Mariam',
-        createdAt: new Date(),
-        courseCode: 'CS401',
-        materialsLink: 'https://example.com/slides'
-      },
-      {
-        id: '2',
-        title: 'Final Project Submission',
-        description: 'Submit the complete Class Event Planner project',
-        type: EVENT_TYPES.DEADLINE,
-        startDate: new Date(2026, 5, 5, 23, 59),
-        endDate: new Date(2026, 5, 5, 23, 59),
-        location: 'Online',
-        priority: PRIORITY_LEVELS.HIGH,
-        createdBy: 'Tekla',
-        createdAt: new Date(),
-        submissionRequired: true,
-        pointsWorth: 100
-      },
-      {
-        id: '3',
-        title: 'Midterm Exam',
-        description: 'Comprehensive exam on design patterns',
-        type: EVENT_TYPES.EXAM,
-        startDate: new Date(2026, 5, 1, 9, 0),
-        endDate: new Date(2026, 5, 1, 12, 0),
-        location: 'Exam Hall A',
-        priority: PRIORITY_LEVELS.HIGH,
-        createdBy: 'Keti',
-        createdAt: new Date(),
-        maxScore: 100,
-        duration: 180
-      },
-      {
-        id: '4',
-        title: 'Study Group Meeting',
-        description: 'Review design patterns together',
-        type: EVENT_TYPES.MEETING,
-        startDate: new Date(2026, 4, 27, 15, 0),
-        endDate: new Date(2026, 4, 27, 17, 0),
-        location: 'Library Room 5',
-        priority: PRIORITY_LEVELS.MEDIUM,
-        createdBy: 'Mariam',
-        createdAt: new Date(),
-        agenda: ['Review Factory pattern', 'Discuss Strategy pattern', 'Plan presentation'],
-        attendees: ['Mariam', 'Tekla', 'Keti']
-      },
-      {
-        id: '5',
-        title: 'Weekly Team Sync',
-        description: 'Progress update on class events',
-        type: EVENT_TYPES.MEETING,
-        startDate: new Date(2026, 4, 29, 14, 0),
-        endDate: new Date(2026, 4, 29, 15, 0),
-        location: 'Conference Room',
-        priority: PRIORITY_LEVELS.LOW,
-        createdBy: 'Tekla',
-        createdAt: new Date(),
-        agenda: ['Weekly updates', 'Blockers discussion'],
-        attendees: ['Mariam', 'Tekla', 'Keti']
-      }
-    ];
-  });
+  };
 
-  useEffect(() => {
-    localStorage.setItem('classEvents', JSON.stringify(events));
-  }, [events]);
+  const deleteEvent = async (eventId) => {
+    const res = await apiFetch(`/api/events/${eventId}`, { method: 'DELETE' });
+    if (res.ok) setEvents(prev => prev.filter(e => e.id !== eventId));
+  };
 
-  const addEvent = (event) => setEvents([event, ...events]);
-
-  const deleteEvent = (eventId) => setEvents(events.filter(e => e.id !== eventId));
-
-  const updateEvent = (updatedEvent) => {
-    setEvents(events.map(e => e.id === updatedEvent.id ? updatedEvent : e));
-    setEditingEvent(null);
+  const updateEvent = async (updatedEvent) => {
+    const res = await apiFetch(`/api/events/${updatedEvent.id}`, {
+      method: 'PUT',
+      body: JSON.stringify(updatedEvent),
+    });
+    if (res.ok) {
+      const saved = await res.json();
+      setEvents(prev => prev.map(e => e.id === saved.id ? saved : e));
+      setEditingEvent(null);
+    }
   };
 
   const handleLogin = (userData) => {
@@ -125,14 +92,14 @@ function App() {
   };
 
   const handleLogout = () => {
+    localStorage.removeItem('authToken');
     setUser(null);
     setCurrentPage('dashboard');
     setEditingEvent(null);
   };
 
-  if (!user) {
-    return <LoginPage onLogin={handleLogin} />;
-  }
+  if (!authChecked) return null;
+  if (!user) return <LoginPage onLogin={handleLogin} />;
 
   const now = new Date();
   const isTeacher = user.role === 'teacher';
