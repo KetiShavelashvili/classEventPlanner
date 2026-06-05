@@ -2,7 +2,7 @@ import React from 'react';
 import { getEventTypeIcon, getPriorityEmoji } from '../types/eventTypes';
 import './EventCard.css';
 
-const EventCard = ({ event, onDelete, onEdit, isTeacher }) => {
+const EventCard = ({ event, onDelete, onEdit }) => {
   const formatDate = (date) => {
     return date.toLocaleDateString('en-US', { 
       month: 'short', 
@@ -22,7 +22,6 @@ const EventCard = ({ event, onDelete, onEdit, isTeacher }) => {
     return start.toDateString() === end.toDateString();
   };
 
-  // Check if event is happening within 48 hours
   const isSoon = () => {
     const now = new Date();
     const eventDate = new Date(event.startDate);
@@ -31,7 +30,9 @@ const EventCard = ({ event, onDelete, onEdit, isTeacher }) => {
   };
 
   const isPast = () => {
-    return new Date(event.startDate) < new Date();
+    const now = new Date();
+    const eventEndDate = new Date(event.endDate);
+    return eventEndDate < now;
   };
 
   return (
@@ -47,7 +48,9 @@ const EventCard = ({ event, onDelete, onEdit, isTeacher }) => {
         </div>
         <div className="event-actions">
           <span className="event-priority">{getPriorityEmoji(event.priority)} {event.priority}</span>
-          {isTeacher && (
+          
+          {/* Only show edit/delete buttons for non-past events */}
+          {!isPast() && (
             <>
               <button onClick={() => onEdit(event)} className="edit-btn" title="Edit event">
                 ✏️
