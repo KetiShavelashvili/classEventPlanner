@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { EVENT_TYPES, PRIORITY_LEVELS } from '../types/eventTypes';
+import { translations } from '../i18n/translations';
 import './EditModal.css';
 
 const toDateTimeLocal = (date) => {
@@ -8,7 +9,8 @@ const toDateTimeLocal = (date) => {
   return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
 };
 
-const EditModal = ({ event, onSave, onClose }) => {
+const EditModal = ({ event, onSave, onClose, lang }) => {
+  const t = translations[lang] ?? translations.en;
   const [eventType, setEventType] = useState(event.type);
   const [formData, setFormData] = useState({
     title: event.title || '',
@@ -35,12 +37,12 @@ const EditModal = ({ event, onSave, onClose }) => {
     e.preventDefault();
 
     if (!formData.startDate || !formData.endDate) {
-      alert('❌ Please select both start date and end date!');
+      alert(t.alertNoDates);
       return;
     }
 
     if (new Date(formData.startDate) >= new Date(formData.endDate)) {
-      alert('❌ End date must be after start date!');
+      alert(t.alertEndBeforeStart);
       return;
     }
 
@@ -75,97 +77,85 @@ const EditModal = ({ event, onSave, onClose }) => {
     <div className="modal-overlay" onClick={onClose}>
       <div className="modal-content" onClick={e => e.stopPropagation()}>
         <div className="modal-header">
-          <h2>✏️ Edit Event</h2>
+          <h2>{t.editModalTitle}</h2>
           <button className="modal-close-btn" onClick={onClose}>✕</button>
         </div>
 
         <form onSubmit={handleSubmit} className="event-form">
           <div className="form-group">
-            <label>Event Type *</label>
+            <label>{t.formEventType} *</label>
             <select value={eventType} onChange={e => setEventType(e.target.value)}>
-              <option value={EVENT_TYPES.LECTURE}>📚 Lecture</option>
-              <option value={EVENT_TYPES.EXAM}>📝 Exam</option>
-              <option value={EVENT_TYPES.MEETING}>👥 Meeting</option>
-              <option value={EVENT_TYPES.DEADLINE}>⏰ Deadline</option>
+              <option value={EVENT_TYPES.LECTURE}>{t.formLecture}</option>
+              <option value={EVENT_TYPES.EXAM}>{t.formExam}</option>
+              <option value={EVENT_TYPES.MEETING}>{t.formMeeting}</option>
+              <option value={EVENT_TYPES.DEADLINE}>{t.formDeadline}</option>
             </select>
           </div>
 
           <div className="form-group">
-            <label>Title *</label>
+            <label>{t.formTitle} *</label>
             <input
               type="text"
               name="title"
               value={formData.title}
               onChange={handleChange}
               required
-              placeholder="Enter event title"
+              placeholder={t.formTitlePlaceholder}
             />
           </div>
 
           <div className="form-group">
-            <label>Description</label>
+            <label>{t.formDescription}</label>
             <textarea
               name="description"
               value={formData.description}
               onChange={handleChange}
-              placeholder="Describe the event"
+              placeholder={t.formDescriptionPlaceholder}
               rows="3"
             />
           </div>
 
           <div className="form-row">
             <div className="form-group">
-              <label>📅 Start *</label>
-              <input
-                type="datetime-local"
-                name="startDate"
-                value={formData.startDate}
-                onChange={handleChange}
-                required
-              />
+              <label>{t.formStart} *</label>
+              <input type="datetime-local" name="startDate" value={formData.startDate} onChange={handleChange} required />
             </div>
             <div className="form-group">
-              <label>⏰ End *</label>
-              <input
-                type="datetime-local"
-                name="endDate"
-                value={formData.endDate}
-                onChange={handleChange}
-                required
-              />
+              <label>{t.formEnd} *</label>
+              <input type="datetime-local" name="endDate" value={formData.endDate} onChange={handleChange} required />
             </div>
           </div>
 
           <div className="form-row">
             <div className="form-group">
-              <label>Location</label>
+              <label>{t.formLocation}</label>
               <input
                 type="text"
                 name="location"
                 value={formData.location}
                 onChange={handleChange}
-                placeholder="Room, building, or online link"
+                placeholder={t.formLocationPlaceholder}
               />
             </div>
             <div className="form-group">
-              <label>Priority</label>
+              <label>{t.formPriority}</label>
               <select name="priority" value={formData.priority} onChange={handleChange}>
-                <option value={PRIORITY_LEVELS.LOW}>🟢 Low</option>
-                <option value={PRIORITY_LEVELS.MEDIUM}>🟡 Medium</option>
-                <option value={PRIORITY_LEVELS.HIGH}>🔴 High</option>
+                <option value={PRIORITY_LEVELS.LOW}>{t.formLow}</option>
+                <option value={PRIORITY_LEVELS.MEDIUM}>{t.formMedium}</option>
+                <option value={PRIORITY_LEVELS.HIGH}>{t.formHigh}</option>
               </select>
             </div>
           </div>
 
           {eventType === EVENT_TYPES.LECTURE && (
             <div className="form-group">
-              <label>Course Code</label>
+              <label>{t.formCourseCode}</label>
               <input
                 type="text"
                 name="courseCode"
                 value={formData.courseCode}
                 onChange={handleChange}
-                placeholder="e.g., CS401, MATH202"
+                placeholder={t.formCourseCodePlaceholder}
               />
             </div>
           )}
@@ -173,11 +163,11 @@ const EditModal = ({ event, onSave, onClose }) => {
           {eventType === EVENT_TYPES.EXAM && (
             <div className="form-row">
               <div className="form-group">
-                <label>Max Score</label>
+                <label>{t.formMaxScore}</label>
                 <input type="number" name="maxScore" value={formData.maxScore} onChange={handleChange} min="0" />
               </div>
               <div className="form-group">
-                <label>Duration (minutes)</label>
+                <label>{t.formDuration}</label>
                 <input type="number" name="duration" value={formData.duration} onChange={handleChange} min="1" />
               </div>
             </div>
@@ -186,23 +176,23 @@ const EditModal = ({ event, onSave, onClose }) => {
           {eventType === EVENT_TYPES.MEETING && (
             <>
               <div className="form-group">
-                <label>Agenda Items (comma-separated)</label>
+                <label>{t.formAgenda}</label>
                 <input
                   type="text"
                   name="agenda"
                   value={formData.agenda}
                   onChange={handleChange}
-                  placeholder="Review project, Discuss deadlines"
+                  placeholder={t.formAgendaPlaceholder}
                 />
               </div>
               <div className="form-group">
-                <label>Attendees (comma-separated)</label>
+                <label>{t.formAttendees}</label>
                 <input
                   type="text"
                   name="attendees"
                   value={formData.attendees}
                   onChange={handleChange}
-                  placeholder="Mariam, Tekla, Keti"
+                  placeholder={t.formAttendeesPlaceholder}
                 />
               </div>
             </>
@@ -218,19 +208,19 @@ const EditModal = ({ event, onSave, onClose }) => {
                     checked={formData.submissionRequired}
                     onChange={handleChange}
                   />
-                  Submission Required
+                  {t.formSubmissionRequired}
                 </label>
               </div>
               <div className="form-group">
-                <label>Points Worth</label>
+                <label>{t.formPointsWorth}</label>
                 <input type="number" name="pointsWorth" value={formData.pointsWorth} onChange={handleChange} min="0" />
               </div>
             </div>
           )}
 
           <div className="modal-actions">
-            <button type="button" className="cancel-btn" onClick={onClose}>Cancel</button>
-            <button type="submit" className="save-btn">💾 Save Changes</button>
+            <button type="button" className="cancel-btn" onClick={onClose}>{t.editCancel}</button>
+            <button type="submit" className="save-btn">{t.editSave}</button>
           </div>
         </form>
       </div>

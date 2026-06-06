@@ -2,33 +2,27 @@ import React, { useState, useMemo } from 'react';
 import EventCard from './EventCard';
 import { SortByDate } from '../strategies/SortByDate';
 import { SortByPriority } from '../strategies/SortByPriority';
+import { translations } from '../i18n/translations';
 import './EventList.css';
 
-const TYPE_OPTIONS = [
-  { value: 'all',      label: 'All Types' },
-  { value: 'lecture',  label: '📚 Lecture' },
-  { value: 'exam',     label: '📝 Exam' },
-  { value: 'meeting',  label: '👥 Meeting' },
-  { value: 'deadline', label: '⏰ Deadline' },
-];
-
-const EventList = ({ events, onDeleteEvent, onEditEvent, isTeacher }) => {
+const EventList = ({ events, onDeleteEvent, onEditEvent, isTeacher, lang }) => {
+  const t = translations[lang] ?? translations.en;
   const [sortStrategy, setSortStrategy] = useState(new SortByDate());
   const [typeFilter, setTypeFilter] = useState('all');
   const [searchQuery, setSearchQuery] = useState('');
 
+  const TYPE_OPTIONS = [
+    { value: 'all',      label: t.filterAll },
+    { value: 'lecture',  label: t.filterLecture },
+    { value: 'exam',     label: t.filterExam },
+    { value: 'meeting',  label: t.filterMeeting },
+    { value: 'deadline', label: t.filterDeadline },
+  ];
+
   const displayedEvents = useMemo(() => {
-    // Step 1: sort the full array with the active strategy
     const sorted = sortStrategy.sort(events);
-
-    // Step 2: apply type filter
-    const typed = typeFilter === 'all'
-      ? sorted
-      : sorted.filter(e => e.type === typeFilter);
-
-    // Step 3: apply search filter only when there's a query
+    const typed = typeFilter === 'all' ? sorted : sorted.filter(e => e.type === typeFilter);
     if (!searchQuery.trim()) return typed;
-
     const q = searchQuery.toLowerCase();
     return typed.filter(e =>
       e.title.toLowerCase().includes(q) ||
@@ -43,7 +37,7 @@ const EventList = ({ events, onDeleteEvent, onEditEvent, isTeacher }) => {
         <input
           type="text"
           className="search-input"
-          placeholder="Search by title or description…"
+          placeholder={t.searchPlaceholder}
           value={searchQuery}
           onChange={e => setSearchQuery(e.target.value)}
         />
@@ -53,17 +47,15 @@ const EventList = ({ events, onDeleteEvent, onEditEvent, isTeacher }) => {
       </div>
 
       <div className="sort-controls">
-        <span>📊 Sort by:</span>
+        <span>{t.sortBy}</span>
         <button onClick={() => setSortStrategy(new SortByDate())} className="sort-btn">
-          📅 Date
+          {t.sortDate}
         </button>
         <button onClick={() => setSortStrategy(new SortByPriority())} className="sort-btn">
-          ⚡ Priority
+          {t.sortPriority}
         </button>
-
         <div className="filter-divider" />
-
-        <span>🏷️ Filter:</span>
+        <span>{t.filterLabel}</span>
         <select
           className="type-filter-select"
           value={typeFilter}
@@ -79,10 +71,10 @@ const EventList = ({ events, onDeleteEvent, onEditEvent, isTeacher }) => {
         {displayedEvents.length === 0 ? (
           <p className="no-events">
             {searchQuery
-              ? `No events match "${searchQuery}".`
+              ? t.noEventsSearch(searchQuery)
               : typeFilter === 'all'
-                ? '✨ No events yet. Create your first event!'
-                : `No ${typeFilter} events found.`}
+                ? t.noEventsEmpty
+                : t.noEventsType(typeFilter)}
           </p>
         ) : (
           displayedEvents.map(event => (
@@ -92,6 +84,7 @@ const EventList = ({ events, onDeleteEvent, onEditEvent, isTeacher }) => {
               onDelete={onDeleteEvent}
               onEdit={onEditEvent}
               isTeacher={isTeacher}
+              lang={lang}
             />
           ))
         )}

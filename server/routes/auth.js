@@ -22,23 +22,51 @@ router.post('/login', async (req, res) => {
   res.json({ token, user: { username: user.username, role: user.role } });
 });
 
+function validatePassword(password) {
+  if (password.length < 8)          return 'Password must be at least 8 characters.';
+  if (!/[A-Z]/.test(password))      return 'Password must contain at least one uppercase letter.';
+  if (!/[a-z]/.test(password))      return 'Password must contain at least one lowercase letter.';
+  if (!/[0-9]/.test(password))      return 'Password must contain at least one number.';
+  if (!/[^A-Za-z0-9]/.test(password)) return 'Password must contain at least one special character.';
+  return null;
+}
+
 router.post('/register', async (req, res) => {
-  const { username, password, role } = req.body;
+  const { username, password, confirmPassword, role, subject, room, year } = req.body;
   if (!username || !password) {
     return res.status(400).json({ error: 'Username and password are required.' });
   }
-  if (password.length < 6) {
-    return res.status(400).json({ error: 'Password must be at least 6 characters.' });
+  if (password !== confirmPassword) {
+    return res.status(400).json({ error: 'Passwords do not match.' });
   }
+  const pwError = validatePassword(password);
+  if (pwError) return res.status(400).json({ error: pwError });
+
+  const safeRole = role === 'teacher' ? 'teacher' : 'student';
+  if (safeRole === 'teacher' && !subject?.trim()) {
+    return res.status(400).json({ error: 'Subject is required for teachers.' });
+  }
+  if (safeRole === 'teacher' && !room?.trim()) {
+    return res.status(400).json({ error: 'Room is required for teachers.' });
+  }
+  if (safeRole === 'student' && !year?.trim()) {
+    return res.status(400).json({ error: 'Year is required for students.' });
+  }
+
   const existing = db.prepare('SELECT id FROM users WHERE username = ?').get(username.trim());
   if (existing) {
     return res.status(409).json({ error: 'Username is already taken.' });
   }
   const passwordHash = await bcrypt.hash(password, 10);
   const id = Date.now().toString();
-  const safeRole = role === 'teacher' ? 'teacher' : 'student';
-  db.prepare('INSERT INTO users (id, username, password_hash, role) VALUES (?, ?, ?, ?)')
-    .run(id, username.trim(), passwordHash, safeRole);
+  db.prepare(
+    'INSERT INTO users (id, username, password_hash, role, subject, room, year) VALUES (?, ?, ?, ?, ?, ?, ?)'
+  ).run(
+    id, username.trim(), passwordHash, safeRole,
+    safeRole === 'teacher' ? (subject?.trim() || null) : null,
+    safeRole === 'teacher' ? (room?.trim() || null) : null,
+    safeRole === 'student' ? (year?.trim() || null) : null
+  );
   const token = jwt.sign(
     { id, username: username.trim(), role: safeRole },
     process.env.JWT_SECRET,

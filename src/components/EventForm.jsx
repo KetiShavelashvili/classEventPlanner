@@ -1,9 +1,11 @@
 import React, { useState } from 'react';
 import { EventFactory } from '../factories/EventFactory';
 import { EVENT_TYPES, PRIORITY_LEVELS } from '../types/eventTypes';
+import { translations } from '../i18n/translations';
 import './EventForm.css';
 
-const EventForm = ({ onEventCreated }) => {
+const EventForm = ({ onEventCreated, lang }) => {
+  const t = translations[lang] ?? translations.en;
   const [eventType, setEventType] = useState(EVENT_TYPES.LECTURE);
   const [formData, setFormData] = useState({
     title: '',
@@ -23,37 +25,32 @@ const EventForm = ({ onEventCreated }) => {
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
-    setFormData({
-      ...formData,
-      [name]: type === 'checkbox' ? checked : value
-    });
+    setFormData({ ...formData, [name]: type === 'checkbox' ? checked : value });
   };
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    
-    // Check if dates are empty
+
     if (!formData.startDate || !formData.endDate) {
-      alert("❌ Please select both start date and end date!");
+      alert(t.alertNoDates);
       return;
     }
-    
-    // DATE VALIDATION - Check for past dates
+
     const now = new Date();
     now.setHours(0, 0, 0, 0);
-    const selectedStartDate = new Date(formData.startDate);
-    selectedStartDate.setHours(0, 0, 0, 0);
-    
-    if (selectedStartDate < now) {
-      alert("❌ Cannot create events in the past! Please select a future date.");
+    const selectedStart = new Date(formData.startDate);
+    selectedStart.setHours(0, 0, 0, 0);
+
+    if (selectedStart < now) {
+      alert(t.alertPastDate);
       return;
     }
-    
+
     if (new Date(formData.startDate) >= new Date(formData.endDate)) {
-      alert("❌ End date must be after start date!");
+      alert(t.alertEndBeforeStart);
       return;
     }
-    
+
     const eventParams = {
       type: eventType,
       title: formData.title,
@@ -77,25 +74,14 @@ const EventForm = ({ onEventCreated }) => {
       eventParams.submissionRequired = formData.submissionRequired;
       eventParams.pointsWorth = parseInt(formData.pointsWorth);
     }
-    
+
     const newEvent = EventFactory.createEvent(eventParams);
     onEventCreated(newEvent);
-    
-    // Reset form
+
     setFormData({
-      title: '',
-      description: '',
-      startDate: '',
-      endDate: '',
-      location: '',
-      priority: PRIORITY_LEVELS.MEDIUM,
-      courseCode: '',
-      maxScore: 100,
-      duration: 60,
-      agenda: '',
-      attendees: '',
-      submissionRequired: false,
-      pointsWorth: 0
+      title: '', description: '', startDate: '', endDate: '', location: '',
+      priority: PRIORITY_LEVELS.MEDIUM, courseCode: '', maxScore: 100,
+      duration: 60, agenda: '', attendees: '', submissionRequired: false, pointsWorth: 0
     });
     setEventType(EVENT_TYPES.LECTURE);
   };
@@ -103,93 +89,79 @@ const EventForm = ({ onEventCreated }) => {
   return (
     <form onSubmit={handleSubmit} className="event-form">
       <div className="form-group">
-        <label>Event Type *</label>
+        <label>{t.formEventType} *</label>
         <select value={eventType} onChange={(e) => setEventType(e.target.value)}>
-          <option value={EVENT_TYPES.LECTURE}>📚 Lecture</option>
-          <option value={EVENT_TYPES.EXAM}>📝 Exam</option>
-          <option value={EVENT_TYPES.MEETING}>👥 Meeting</option>
-          <option value={EVENT_TYPES.DEADLINE}>⏰ Deadline</option>
+          <option value={EVENT_TYPES.LECTURE}>{t.formLecture}</option>
+          <option value={EVENT_TYPES.EXAM}>{t.formExam}</option>
+          <option value={EVENT_TYPES.MEETING}>{t.formMeeting}</option>
+          <option value={EVENT_TYPES.DEADLINE}>{t.formDeadline}</option>
         </select>
       </div>
 
       <div className="form-group">
-        <label>Title *</label>
+        <label>{t.formTitle} *</label>
         <input
           type="text"
           name="title"
           value={formData.title}
           onChange={handleChange}
           required
-          placeholder="Enter event title"
+          placeholder={t.formTitlePlaceholder}
         />
       </div>
 
       <div className="form-group">
-        <label>Description</label>
+        <label>{t.formDescription}</label>
         <textarea
           name="description"
           value={formData.description}
           onChange={handleChange}
-          placeholder="Describe the event"
+          placeholder={t.formDescriptionPlaceholder}
           rows="3"
         />
       </div>
 
       <div className="form-row">
         <div className="form-group">
-          <label>📅 Start *</label>
-          <input
-            type="datetime-local"
-            name="startDate"
-            value={formData.startDate}
-            onChange={handleChange}
-            required
-          />
+          <label>{t.formStart} *</label>
+          <input type="datetime-local" name="startDate" value={formData.startDate} onChange={handleChange} required />
         </div>
-
         <div className="form-group">
-          <label>⏰ End *</label>
-          <input
-            type="datetime-local"
-            name="endDate"
-            value={formData.endDate}
-            onChange={handleChange}
-            required
-          />
+          <label>{t.formEnd} *</label>
+          <input type="datetime-local" name="endDate" value={formData.endDate} onChange={handleChange} required />
         </div>
       </div>
 
       <div className="form-row">
         <div className="form-group">
-          <label>Location</label>
+          <label>{t.formLocation}</label>
           <input
             type="text"
             name="location"
             value={formData.location}
             onChange={handleChange}
-            placeholder="Room, building, or online link"
+            placeholder={t.formLocationPlaceholder}
           />
         </div>
-
         <div className="form-group">
-          <label>Priority</label>
+          <label>{t.formPriority}</label>
           <select name="priority" value={formData.priority} onChange={handleChange}>
-            <option value={PRIORITY_LEVELS.LOW}>🟢 Low</option>
-            <option value={PRIORITY_LEVELS.MEDIUM}>🟡 Medium</option>
-            <option value={PRIORITY_LEVELS.HIGH}>🔴 High</option>
+            <option value={PRIORITY_LEVELS.LOW}>{t.formLow}</option>
+            <option value={PRIORITY_LEVELS.MEDIUM}>{t.formMedium}</option>
+            <option value={PRIORITY_LEVELS.HIGH}>{t.formHigh}</option>
           </select>
         </div>
       </div>
 
       {eventType === EVENT_TYPES.LECTURE && (
         <div className="form-group">
-          <label>Course Code</label>
+          <label>{t.formCourseCode}</label>
           <input
             type="text"
             name="courseCode"
             value={formData.courseCode}
             onChange={handleChange}
-            placeholder="e.g., CS401, MATH202"
+            placeholder={t.formCourseCodePlaceholder}
           />
         </div>
       )}
@@ -197,24 +169,12 @@ const EventForm = ({ onEventCreated }) => {
       {eventType === EVENT_TYPES.EXAM && (
         <div className="form-row">
           <div className="form-group">
-            <label>Max Score</label>
-            <input
-              type="number"
-              name="maxScore"
-              value={formData.maxScore}
-              onChange={handleChange}
-              min="0"
-            />
+            <label>{t.formMaxScore}</label>
+            <input type="number" name="maxScore" value={formData.maxScore} onChange={handleChange} min="0" />
           </div>
           <div className="form-group">
-            <label>Duration (minutes)</label>
-            <input
-              type="number"
-              name="duration"
-              value={formData.duration}
-              onChange={handleChange}
-              min="1"
-            />
+            <label>{t.formDuration}</label>
+            <input type="number" name="duration" value={formData.duration} onChange={handleChange} min="1" />
           </div>
         </div>
       )}
@@ -222,23 +182,23 @@ const EventForm = ({ onEventCreated }) => {
       {eventType === EVENT_TYPES.MEETING && (
         <>
           <div className="form-group">
-            <label>Agenda Items (comma-separated)</label>
+            <label>{t.formAgenda}</label>
             <input
               type="text"
               name="agenda"
               value={formData.agenda}
               onChange={handleChange}
-              placeholder="Review project, Discuss deadlines, Plan next steps"
+              placeholder={t.formAgendaPlaceholder}
             />
           </div>
           <div className="form-group">
-            <label>Attendees (comma-separated)</label>
+            <label>{t.formAttendees}</label>
             <input
               type="text"
               name="attendees"
               value={formData.attendees}
               onChange={handleChange}
-              placeholder="Mariam, Tekla, Keti"
+              placeholder={t.formAttendeesPlaceholder}
             />
           </div>
         </>
@@ -254,25 +214,17 @@ const EventForm = ({ onEventCreated }) => {
                 checked={formData.submissionRequired}
                 onChange={handleChange}
               />
-              Submission Required
+              {t.formSubmissionRequired}
             </label>
           </div>
           <div className="form-group">
-            <label>Points Worth</label>
-            <input
-              type="number"
-              name="pointsWorth"
-              value={formData.pointsWorth}
-              onChange={handleChange}
-              min="0"
-            />
+            <label>{t.formPointsWorth}</label>
+            <input type="number" name="pointsWorth" value={formData.pointsWorth} onChange={handleChange} min="0" />
           </div>
         </div>
       )}
 
-      <button type="submit" className="submit-btn">
-        ✨ Create Event
-      </button>
+      <button type="submit" className="submit-btn">{t.formCreateBtn}</button>
     </form>
   );
 };

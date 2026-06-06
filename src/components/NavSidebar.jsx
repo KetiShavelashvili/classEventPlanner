@@ -1,29 +1,30 @@
 import React from 'react';
+import { translations } from '../i18n/translations';
 import './NavSidebar.css';
 
-const NAV_ITEMS = [
-  { id: 'dashboard', label: 'Dashboard', icon: '📋' },
-  { id: 'past',      label: 'Past Events', icon: '🗂️' },
-];
-
-const NavSidebar = ({ currentPage, onNavigate, user, upcomingCount, pastCount, onLogout, theme, onToggleTheme }) => {
+const NavSidebar = ({ currentPage, onNavigate, user, upcomingCount, pastCount, onLogout, theme, onToggleTheme, lang, setLang }) => {
+  const t = translations[lang] ?? translations.en;
   const counts = { dashboard: upcomingCount, past: pastCount };
+  const NAV_ITEMS = [
+    { id: 'dashboard', label: t.navDashboard, icon: '📋' },
+    { id: 'past',      label: t.navPastEvents, icon: '🗂️' },
+  ];
+
+  const themeLabel = theme === 'light' ? t.navLightMode : theme === 'system' ? t.navSystemMode : t.navDarkMode;
 
   return (
     <aside className="nav-sidebar">
       <div className="nav-sidebar-inner">
-        {/* Logo */}
         <div className="nav-logo">
           <span className="nav-logo-icon">📅</span>
           <div className="nav-logo-text">
-            <span className="nav-logo-title">EventPlanner</span>
-            <span className="nav-logo-sub">Class Schedule</span>
+            <span className="nav-logo-title">{t.navLogoTitle}</span>
+            <span className="nav-logo-sub">{t.navLogoSub}</span>
           </div>
         </div>
 
-        {/* Nav items */}
         <nav className="nav-items">
-          <p className="nav-section-label">Navigation</p>
+          <p className="nav-section-label">{t.navSection}</p>
           {NAV_ITEMS.map(item => (
             <button
               key={item.id}
@@ -39,7 +40,6 @@ const NavSidebar = ({ currentPage, onNavigate, user, upcomingCount, pastCount, o
           ))}
         </nav>
 
-        {/* User + Logout */}
         <div className="nav-footer">
           <div className="nav-user">
             <span className="nav-user-avatar">
@@ -48,15 +48,25 @@ const NavSidebar = ({ currentPage, onNavigate, user, upcomingCount, pastCount, o
             <div className="nav-user-info">
               <span className="nav-user-name">{user.username}</span>
               <span className="nav-user-role">
-                {user.role === 'teacher' ? 'Teacher' : 'Student'}
+                {user.role === 'teacher' ? t.navRoleTeacher : t.navRoleStudent}
               </span>
             </div>
           </div>
+          <div className="nav-lang-row">
+            <button
+              className={`nav-lang-btn ${lang === 'en' ? 'nav-lang-active' : ''}`}
+              onClick={() => setLang('en')}
+            >EN</button>
+            <button
+              className={`nav-lang-btn ${lang === 'ka' ? 'nav-lang-active' : ''}`}
+              onClick={() => setLang('ka')}
+            >GEO</button>
+          </div>
           <button className="nav-theme-btn" onClick={onToggleTheme}>
-            {theme === 'dark' ? '☀️ Light Mode' : '🌙 Dark Mode'}
+            {themeLabel}
           </button>
-          <button className="nav-logout-btn" onClick={onLogout} title="Log out">
-            🚪 Log Out
+          <button className="nav-logout-btn" onClick={onLogout} title={t.navLogout}>
+            {t.navLogout}
           </button>
         </div>
       </div>

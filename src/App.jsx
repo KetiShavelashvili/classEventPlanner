@@ -5,7 +5,12 @@ import EditModal from './components/EditModal';
 import PastEventsPage from './components/PastEventsPage';
 import LoginPage from './components/LoginPage';
 import NavSidebar from './components/NavSidebar';
+import { translations } from './i18n/translations';
 import './App.css';
+
+function resolveTheme(mode) {
+  return mode; // 'light' | 'dark' | 'system' — each has its own CSS theme
+}
 
 function apiFetch(path, options = {}) {
   const token = localStorage.getItem('authToken');
@@ -20,17 +25,27 @@ function apiFetch(path, options = {}) {
 }
 
 function App() {
-  const [theme, setTheme] = useState(() => localStorage.getItem('theme') || 'dark');
+  const [themeMode, setThemeMode] = useState(() => {
+    const stored = localStorage.getItem('themeMode') || localStorage.getItem('theme') || 'dark';
+    return ['dark', 'light', 'system'].includes(stored) ? stored : 'dark';
+  });
+  const [lang, setLang] = useState(() => localStorage.getItem('lang') || 'en');
   const [user, setUser] = useState(null);
   const [authChecked, setAuthChecked] = useState(false);
   const [currentPage, setCurrentPage] = useState('dashboard');
   const [editingEvent, setEditingEvent] = useState(null);
   const [events, setEvents] = useState([]);
 
+  // Apply resolved theme to DOM
   useEffect(() => {
-    document.documentElement.setAttribute('data-theme', theme);
-    localStorage.setItem('theme', theme);
-  }, [theme]);
+    document.documentElement.setAttribute('data-theme', resolveTheme(themeMode));
+    localStorage.setItem('themeMode', themeMode);
+  }, [themeMode]);
+
+
+  useEffect(() => {
+    localStorage.setItem('lang', lang);
+  }, [lang]);
 
   // Restore session from stored JWT
   useEffect(() => {
@@ -50,19 +65,17 @@ function App() {
       .catch(() => {});
   }, []);
 
-  // Load events whenever the user logs in
   useEffect(() => {
     if (user) fetchEvents();
     else setEvents([]);
   }, [user, fetchEvents]);
 
-  const toggleTheme = () => setTheme(t => t === 'dark' ? 'light' : 'dark');
+  // NavSidebar still gets a binary dark/light toggle
+  const toggleTheme = () =>
+    setThemeMode(m => resolveTheme(m) === 'dark' ? 'light' : 'dark');
 
   const addEvent = async (event) => {
-    const res = await apiFetch('/api/events', {
-      method: 'POST',
-      body: JSON.stringify(event),
-    });
+    const res = await apiFetch('/api/events', { method: 'POST', body: JSON.stringify(event) });
     if (res.ok) {
       const created = await res.json();
       setEvents(prev => [created, ...prev]);
@@ -98,8 +111,21 @@ function App() {
     setEditingEvent(null);
   };
 
+  const t = translations[lang] ?? translations.en;
+
   if (!authChecked) return null;
-  if (!user) return <LoginPage onLogin={handleLogin} />;
+
+  if (!user) {
+    return (
+      <LoginPage
+        onLogin={handleLogin}
+        themeMode={themeMode}
+        setThemeMode={setThemeMode}
+        lang={lang}
+        setLang={setLang}
+      />
+    );
+  }
 
   const now = new Date();
   const isTeacher = user.role === 'teacher';
@@ -116,14 +142,16 @@ function App() {
           upcomingCount={upcomingEvents.length}
           pastCount={pastEvents.length}
           onLogout={handleLogout}
-          theme={theme}
+          theme={resolveTheme(themeMode)}
           onToggleTheme={toggleTheme}
+          lang={lang}
+          setLang={setLang}
         />
 
         <div className="app-content">
           <header className="app-header">
-            <h1>📅 Class Event Planner</h1>
-            <p>Design Patterns Demo: Factory • Strategy • Observer • Decorator</p>
+            <h1>{t.appTitle}</h1>
+            <p>{t.appSubtitle}</p>
             <div className="pattern-badges">
               <span className="badge">🏭 Factory Method</span>
               <span className="badge">🎯 Strategy</span>
@@ -136,17 +164,18 @@ function App() {
             <main className={`app-main ${!isTeacher ? 'app-main-student' : ''}`}>
               {isTeacher && (
                 <aside className="sidebar">
-                  <h2>➕ Create New Event</h2>
-                  <EventForm onEventCreated={addEvent} />
+                  <h2>{t.createNewEvent}</h2>
+                  <EventForm onEventCreated={addEvent} lang={lang} />
                 </aside>
               )}
               <section className="content">
-                <h2>📋 Upcoming Events ({upcomingEvents.length})</h2>
+                <h2>{t.upcomingEvents} ({upcomingEvents.length})</h2>
                 <EventList
                   events={upcomingEvents}
                   onDeleteEvent={deleteEvent}
                   onEditEvent={setEditingEvent}
                   isTeacher={isTeacher}
+                  lang={lang}
                 />
               </section>
             </main>
@@ -158,6 +187,7 @@ function App() {
               onDeleteEvent={deleteEvent}
               onEditEvent={setEditingEvent}
               isTeacher={isTeacher}
+              lang={lang}
             />
           )}
         </div>
@@ -168,6 +198,7 @@ function App() {
           event={editingEvent}
           onSave={updateEvent}
           onClose={() => setEditingEvent(null)}
+          lang={lang}
         />
       )}
     </div>

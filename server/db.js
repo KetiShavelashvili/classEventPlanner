@@ -40,6 +40,11 @@ db.exec(`
   );
 `);
 
+// Add profile columns if they don't exist yet (safe to run on existing DB)
+for (const col of ['subject TEXT', 'room TEXT', 'year TEXT']) {
+  try { db.exec(`ALTER TABLE users ADD COLUMN ${col}`); } catch {}
+}
+
 // Seed users once
 const userCount = db.prepare('SELECT COUNT(*) as c FROM users').get().c;
 if (userCount === 0) {
