@@ -1,5 +1,7 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { EVENT_TYPES, PRIORITY_LEVELS } from '../types/eventTypes';
+import { useEventForm } from '../hooks/useEventForm';
+import TypeSpecificFields from './TypeSpecificFields';
 import { translations } from '../i18n/translations';
 import './EditModal.css';
 
@@ -11,66 +13,38 @@ const toDateTimeLocal = (date) => {
 
 const EditModal = ({ event, onSave, onClose, lang }) => {
   const t = translations[lang] ?? translations.en;
-  const [eventType, setEventType] = useState(event.type);
-  const [formData, setFormData] = useState({
-    title: event.title || '',
-    description: event.description || '',
-    startDate: toDateTimeLocal(event.startDate),
-    endDate: toDateTimeLocal(event.endDate),
-    location: event.location || '',
-    priority: event.priority || PRIORITY_LEVELS.MEDIUM,
-    courseCode: event.courseCode || '',
-    maxScore: event.maxScore || 100,
-    duration: event.duration || 60,
-    agenda: (event.agenda || []).join(', '),
-    attendees: (event.attendees || []).join(', '),
+
+  const { eventType, setEventType, formData, handleChange, buildEventParams } = useEventForm({
+    type:               event.type,
+    title:              event.title              || '',
+    description:        event.description        || '',
+    startDate:          toDateTimeLocal(event.startDate),
+    endDate:            toDateTimeLocal(event.endDate),
+    location:           event.location           || '',
+    priority:           event.priority           || PRIORITY_LEVELS.MEDIUM,
+    courseCode:         event.courseCode         || '',
+    maxScore:           event.maxScore           || 100,
+    duration:           event.duration           || 60,
+    agenda:             (event.agenda            || []).join(', '),
+    attendees:          (event.attendees         || []).join(', '),
     submissionRequired: event.submissionRequired || false,
-    pointsWorth: event.pointsWorth || 0
+    pointsWorth:        event.pointsWorth        || 0,
   });
 
-  const handleChange = (e) => {
-    const { name, value, type, checked } = e.target;
-    setFormData({ ...formData, [name]: type === 'checkbox' ? checked : value });
-  };
-
+  // Template Method — Step 4 unique to EditModal: merge with existing event, call onSave.
   const handleSubmit = (e) => {
     e.preventDefault();
-
-    if (!formData.startDate || !formData.endDate) {
-      alert(t.alertNoDates);
-      return;
-    }
-
+    if (!formData.startDate || !formData.endDate) { alert(t.alertNoDates); return; }
     if (new Date(formData.startDate) >= new Date(formData.endDate)) {
       alert(t.alertEndBeforeStart);
       return;
     }
-
-    const updatedEvent = {
-      ...event,
-      type: eventType,
-      title: formData.title,
-      description: formData.description,
-      startDate: new Date(formData.startDate),
-      endDate: new Date(formData.endDate),
-      location: formData.location,
-      priority: formData.priority
-    };
-
-    if (eventType === EVENT_TYPES.LECTURE) {
-      updatedEvent.courseCode = formData.courseCode;
-    } else if (eventType === EVENT_TYPES.EXAM) {
-      updatedEvent.maxScore = parseInt(formData.maxScore);
-      updatedEvent.duration = parseInt(formData.duration);
-    } else if (eventType === EVENT_TYPES.MEETING) {
-      updatedEvent.agenda = formData.agenda.split(',').map(a => a.trim()).filter(a => a);
-      updatedEvent.attendees = formData.attendees.split(',').map(a => a.trim()).filter(a => a);
-    } else if (eventType === EVENT_TYPES.DEADLINE) {
-      updatedEvent.submissionRequired = formData.submissionRequired;
-      updatedEvent.pointsWorth = parseInt(formData.pointsWorth);
+    try {
+      const params = buildEventParams();
+      onSave({ ...event, ...params });
+    } catch (err) {
+      alert(err.message);
     }
-
-    onSave(updatedEvent);
   };
 
   return (
@@ -94,25 +68,14 @@ const EditModal = ({ event, onSave, onClose, lang }) => {
 
           <div className="form-group">
             <label>{t.formTitle} *</label>
-            <input
-              type="text"
-              name="title"
-              value={formData.title}
-              onChange={handleChange}
-              required
-              placeholder={t.formTitlePlaceholder}
-            />
+            <input type="text" name="title" value={formData.title} onChange={handleChange}
+              required placeholder={t.formTitlePlaceholder} />
           </div>
 
           <div className="form-group">
             <label>{t.formDescription}</label>
-            <textarea
-              name="description"
-              value={formData.description}
-              onChange={handleChange}
-              placeholder={t.formDescriptionPlaceholder}
-              rows="3"
-            />
+            <textarea name="description" value={formData.description} onChange={handleChange}
+              placeholder={t.formDescriptionPlaceholder} rows="3" />
           </div>
 
           <div className="form-row">
@@ -129,13 +92,8 @@ const EditModal = ({ event, onSave, onClose, lang }) => {
           <div className="form-row">
             <div className="form-group">
               <label>{t.formLocation}</label>
-              <input
-                type="text"
-                name="location"
-                value={formData.location}
-                onChange={handleChange}
-                placeholder={t.formLocationPlaceholder}
-              />
+              <input type="text" name="location" value={formData.location} onChange={handleChange}
+                placeholder={t.formLocationPlaceholder} />
             </div>
             <div className="form-group">
               <label>{t.formPriority}</label>
@@ -147,76 +105,7 @@ const EditModal = ({ event, onSave, onClose, lang }) => {
             </div>
           </div>
 
-          {eventType === EVENT_TYPES.LECTURE && (
-            <div className="form-group">
-              <label>{t.formCourseCode}</label>
-              <input
-                type="text"
-                name="courseCode"
-                value={formData.courseCode}
-                onChange={handleChange}
-                placeholder={t.formCourseCodePlaceholder}
-              />
-            </div>
-          )}
-
-          {eventType === EVENT_TYPES.EXAM && (
-            <div className="form-row">
-              <div className="form-group">
-                <label>{t.formMaxScore}</label>
-                <input type="number" name="maxScore" value={formData.maxScore} onChange={handleChange} min="0" />
-              </div>
-              <div className="form-group">
-                <label>{t.formDuration}</label>
-                <input type="number" name="duration" value={formData.duration} onChange={handleChange} min="1" />
-              </div>
-            </div>
-          )}
-
-          {eventType === EVENT_TYPES.MEETING && (
-            <>
-              <div className="form-group">
-                <label>{t.formAgenda}</label>
-                <input
-                  type="text"
-                  name="agenda"
-                  value={formData.agenda}
-                  onChange={handleChange}
-                  placeholder={t.formAgendaPlaceholder}
-                />
-              </div>
-              <div className="form-group">
-                <label>{t.formAttendees}</label>
-                <input
-                  type="text"
-                  name="attendees"
-                  value={formData.attendees}
-                  onChange={handleChange}
-                  placeholder={t.formAttendeesPlaceholder}
-                />
-              </div>
-            </>
-          )}
-
-          {eventType === EVENT_TYPES.DEADLINE && (
-            <div className="form-row">
-              <div className="form-group">
-                <label className="checkbox-label">
-                  <input
-                    type="checkbox"
-                    name="submissionRequired"
-                    checked={formData.submissionRequired}
-                    onChange={handleChange}
-                  />
-                  {t.formSubmissionRequired}
-                </label>
-              </div>
-              <div className="form-group">
-                <label>{t.formPointsWorth}</label>
-                <input type="number" name="pointsWorth" value={formData.pointsWorth} onChange={handleChange} min="0" />
-              </div>
-            </div>
-          )}
+          <TypeSpecificFields eventType={eventType} formData={formData} handleChange={handleChange} t={t} />
 
           <div className="modal-actions">
             <button type="button" className="cancel-btn" onClick={onClose}>{t.editCancel}</button>

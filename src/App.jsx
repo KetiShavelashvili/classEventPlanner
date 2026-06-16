@@ -1,17 +1,23 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import EventList from './components/EventList';
-import EventForm from './components/EventForm';
-import EditModal from './components/EditModal';
+import EventList      from './components/EventList';
+import EventForm      from './components/EventForm';
+import EditModal      from './components/EditModal';
 import PastEventsPage from './components/PastEventsPage';
-import LoginPage from './components/LoginPage';
-import NavSidebar from './components/NavSidebar';
+import LoginPage      from './components/LoginPage';
+import NavSidebar     from './components/NavSidebar';
+import ActivityLog    from './components/ActivityLog';
+import EventBus       from './EventBus';
+import { UnauthenticatedState } from './states/UnauthenticatedState';
+import { TeacherState }         from './states/TeacherState';
+import { StudentState }         from './states/StudentState';
+import { CreateEventCommand }   from './commands/CreateEventCommand';
+import { DeleteEventCommand }   from './commands/DeleteEventCommand';
+import { UpdateEventCommand }   from './commands/UpdateEventCommand';
 import { translations } from './i18n/translations';
 import './App.css';
 
-function resolveTheme(mode) {
-  return mode; // 'light' | 'dark' | 'system' — each has its own CSS theme
-}
-
+// Facade Pattern — hides fetch + auth token injection behind a single function.
+// All network calls in this file go through apiFetch; nothing else touches fetch directly.
 function apiFetch(path, options = {}) {
   const token = localStorage.getItem('authToken');
   return fetch(path, {
@@ -24,28 +30,40 @@ function apiFetch(path, options = {}) {
   });
 }
 
+function resolveTheme(mode) {
+  return mode;
+}
+
+// State Pattern — builds the correct concrete AppState from a user payload
+function stateFromUser(userData) {
+  return userData.role === 'teacher'
+    ? new TeacherState(userData)
+    : new StudentState(userData);
+}
+
 function App() {
   const [themeMode, setThemeMode] = useState(() => {
-    const stored = localStorage.getItem('themeMode') || localStorage.getItem('theme') || 'dark';
+    const stored = localStorage.getItem('themeMode') || 'dark';
     return ['dark', 'light', 'system'].includes(stored) ? stored : 'dark';
   });
-  const [lang, setLang] = useState(() => localStorage.getItem('lang') || 'en');
-  const [user, setUser] = useState(null);
+  const [lang, setLang]           = useState(() => localStorage.getItem('lang') || 'en');
   const [authChecked, setAuthChecked] = useState(false);
   const [currentPage, setCurrentPage] = useState('dashboard');
   const [editingEvent, setEditingEvent] = useState(null);
-  const [events, setEvents] = useState([]);
+  const [events, setEvents]       = useState([]);
 
-  // Apply resolved theme to DOM
+  // State Pattern — single appState replaces scattered user + isTeacher booleans
+  const [appState, setAppState]   = useState(new UnauthenticatedState());
+
+  // Command Pattern — history stack enables undo
+  const [commandHistory, setCommandHistory] = useState([]);
+
   useEffect(() => {
     document.documentElement.setAttribute('data-theme', resolveTheme(themeMode));
     localStorage.setItem('themeMode', themeMode);
   }, [themeMode]);
 
-
-  useEffect(() => {
-    localStorage.setItem('lang', lang);
-  }, [lang]);
+  useEffect(() => { localStorage.setItem('lang', lang); }, [lang]);
 
   // Restore session from stored JWT
   useEffect(() => {
@@ -53,7 +71,7 @@ function App() {
     if (!token) { setAuthChecked(true); return; }
     fetch('/api/auth/verify', { headers: { Authorization: `Bearer ${token}` } })
       .then(res => res.ok ? res.json() : Promise.reject())
-      .then(data => setUser(data.user))
+      .then(data => setAppState(stateFromUser(data.user)))
       .catch(() => localStorage.removeItem('authToken'))
       .finally(() => setAuthChecked(true));
   }, []);
@@ -66,56 +84,60 @@ function App() {
   }, []);
 
   useEffect(() => {
-    if (user) fetchEvents();
+    if (appState.isAuthenticated) fetchEvents();
     else setEvents([]);
-  }, [user, fetchEvents]);
+  }, [appState, fetchEvents]);
 
-  // NavSidebar still gets a binary dark/light toggle
   const toggleTheme = () =>
     setThemeMode(m => resolveTheme(m) === 'dark' ? 'light' : 'dark');
 
-  const addEvent = async (event) => {
-    const res = await apiFetch('/api/events', { method: 'POST', body: JSON.stringify(event) });
-    if (res.ok) {
-      const created = await res.json();
-      setEvents(prev => [created, ...prev]);
-    }
-  };
+  // Command Pattern — executes a command and pushes it onto the history stack
+  const executeCommand = useCallback(async (command) => {
+    await command.execute();
+    setCommandHistory(prev => [...prev, command]);
+  }, []);
 
-  const deleteEvent = async (eventId) => {
-    const res = await apiFetch(`/api/events/${eventId}`, { method: 'DELETE' });
-    if (res.ok) setEvents(prev => prev.filter(e => e.id !== eventId));
-  };
+  // Command Pattern — undoes the most recent command
+  const undoLastCommand = useCallback(async () => {
+    if (commandHistory.length === 0) return;
+    const last = commandHistory[commandHistory.length - 1];
+    await last.undo();
+    setCommandHistory(prev => prev.slice(0, -1));
+  }, [commandHistory]);
 
-  const updateEvent = async (updatedEvent) => {
-    const res = await apiFetch(`/api/events/${updatedEvent.id}`, {
-      method: 'PUT',
-      body: JSON.stringify(updatedEvent),
-    });
-    if (res.ok) {
-      const saved = await res.json();
-      setEvents(prev => prev.map(e => e.id === saved.id ? saved : e));
-      setEditingEvent(null);
-    }
-  };
+  const addEvent = useCallback((event) => {
+    executeCommand(new CreateEventCommand(event, apiFetch, setEvents));
+  }, [executeCommand]);
+
+  const deleteEvent = useCallback((eventId) => {
+    const original = events.find(e => e.id === eventId);
+    executeCommand(new DeleteEventCommand(eventId, original, apiFetch, setEvents));
+  }, [executeCommand, events]);
+
+  const updateEvent = useCallback((updatedEvent) => {
+    const original = events.find(e => e.id === updatedEvent.id);
+    executeCommand(new UpdateEventCommand(updatedEvent, original, apiFetch, setEvents, setEditingEvent));
+  }, [executeCommand, events]);
 
   const handleLogin = (userData) => {
-    setUser(userData);
+    setAppState(stateFromUser(userData));
     setCurrentPage('dashboard');
   };
 
   const handleLogout = () => {
     localStorage.removeItem('authToken');
-    setUser(null);
+    setAppState(new UnauthenticatedState());
     setCurrentPage('dashboard');
     setEditingEvent(null);
+    setCommandHistory([]);
   };
 
   const t = translations[lang] ?? translations.en;
 
   if (!authChecked) return null;
 
-  if (!user) {
+  // State Pattern — delegates authentication check to the state object
+  if (!appState.isAuthenticated) {
     return (
       <LoginPage
         onLogin={handleLogin}
@@ -127,10 +149,11 @@ function App() {
     );
   }
 
-  const now = new Date();
-  const isTeacher = user.role === 'teacher';
+  const now            = new Date();
+  const user           = appState.user;
+  const isTeacher      = appState.canManageEvents;    // State Pattern — no role string comparisons
   const upcomingEvents = events.filter(e => new Date(e.startDate) >= now);
-  const pastEvents = events.filter(e => new Date(e.startDate) < now);
+  const pastEvents     = events.filter(e => new Date(e.startDate) < now);
 
   return (
     <div className="app">
@@ -157,7 +180,20 @@ function App() {
               <span className="badge">🎯 Strategy</span>
               <span className="badge">👁️ Observer</span>
               <span className="badge">🎨 Decorator</span>
+              <span className="badge">📐 Template Method</span>
+              <span className="badge">🗄️ Repository</span>
+              <span className="badge">🏗️ Builder</span>
+              <span className="badge">⌨️ Command</span>
+              <span className="badge">🔄 State</span>
             </div>
+            <div className="header-actions">
+              {commandHistory.length > 0 && (
+                <button className="undo-btn" onClick={undoLastCommand} title="Undo last action">
+                  ↩ Undo
+                </button>
+              )}
+            </div>
+            <ActivityLog lang={lang} />
           </header>
 
           {currentPage === 'dashboard' && (

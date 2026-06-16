@@ -1,3 +1,7 @@
+// Chain of Responsibility Pattern — each middleware either handles the request
+// (returns an error response) or passes it to the next handler via next().
+// Usage in routes: requireAuth → requireTeacher → route handler.
+// Neither handler knows about the others; each only inspects its own concern.
 import jwt from 'jsonwebtoken';
 
 export function requireAuth(req, res, next) {

@@ -1,3 +1,5 @@
+// Singleton Pattern — one database connection shared across the entire server process.
+// Importing this module always returns the same Database instance.
 import Database from 'better-sqlite3';
 import { fileURLToPath } from 'url';
 import { dirname, join } from 'path';

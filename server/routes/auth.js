@@ -1,7 +1,7 @@
 import { Router } from 'express';
 import jwt from 'jsonwebtoken';
 import bcrypt from 'bcryptjs';
-import db from '../db.js';
+import { UserRepository } from '../repositories/UserRepository.js';
 
 const router = Router();
 
@@ -10,7 +10,7 @@ router.post('/login', async (req, res) => {
   if (!username || !password) {
     return res.status(400).json({ error: 'Username and password are required.' });
   }
-  const user = db.prepare('SELECT * FROM users WHERE username = ?').get(username.trim());
+  const user = UserRepository.findByUsername(username.trim());
   if (!user || !(await bcrypt.compare(password, user.password_hash))) {
     return res.status(401).json({ error: 'Invalid username or password.' });
   }
@@ -23,11 +23,11 @@ router.post('/login', async (req, res) => {
 });
 
 function validatePassword(password) {
-  if (password.length < 8)          return 'Password must be at least 8 characters.';
-  if (!/[A-Z]/.test(password))      return 'Password must contain at least one uppercase letter.';
-  if (!/[a-z]/.test(password))      return 'Password must contain at least one lowercase letter.';
-  if (!/[0-9]/.test(password))      return 'Password must contain at least one number.';
-  if (!/[^A-Za-z0-9]/.test(password)) return 'Password must contain at least one special character.';
+  if (password.length < 8)             return 'Password must be at least 8 characters.';
+  if (!/[A-Z]/.test(password))         return 'Password must contain at least one uppercase letter.';
+  if (!/[a-z]/.test(password))         return 'Password must contain at least one lowercase letter.';
+  if (!/[0-9]/.test(password))         return 'Password must contain at least one number.';
+  if (!/[^A-Za-z0-9]/.test(password))  return 'Password must contain at least one special character.';
   return null;
 }
 
@@ -53,20 +53,22 @@ router.post('/register', async (req, res) => {
     return res.status(400).json({ error: 'Year is required for students.' });
   }
 
-  const existing = db.prepare('SELECT id FROM users WHERE username = ?').get(username.trim());
-  if (existing) {
+  if (UserRepository.existsByUsername(username.trim())) {
     return res.status(409).json({ error: 'Username is already taken.' });
   }
+
   const passwordHash = await bcrypt.hash(password, 10);
   const id = Date.now().toString();
-  db.prepare(
-    'INSERT INTO users (id, username, password_hash, role, subject, room, year) VALUES (?, ?, ?, ?, ?, ?, ?)'
-  ).run(
-    id, username.trim(), passwordHash, safeRole,
-    safeRole === 'teacher' ? (subject?.trim() || null) : null,
-    safeRole === 'teacher' ? (room?.trim() || null) : null,
-    safeRole === 'student' ? (year?.trim() || null) : null
-  );
+  UserRepository.create({
+    id,
+    username: username.trim(),
+    passwordHash,
+    role: safeRole,
+    subject: safeRole === 'teacher' ? (subject?.trim() || null) : null,
+    room: safeRole === 'teacher' ? (room?.trim() || null) : null,
+    year: safeRole === 'student' ? (year?.trim() || null) : null,
+  });
+
   const token = jwt.sign(
     { id, username: username.trim(), role: safeRole },
     process.env.JWT_SECRET,

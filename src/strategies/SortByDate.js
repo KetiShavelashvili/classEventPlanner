@@ -1,8 +1,14 @@
 import { SortStrategy } from './SortStrategy';
 
-// Concrete Strategy: Sort by date (oldest to newest)
 export class SortByDate extends SortStrategy {
   sort(events) {
-    return [...events].sort((a, b) => a.startDate - b.startDate);
+    // Explicit Date construction required — startDate arrives as an ISO string
+    // from the API. Subtracting strings directly yields NaN and sorts nothing.
+    return [...events].sort(
+      (a, b) => new Date(a.startDate) - new Date(b.startDate)
+    );
   }
 }
+
+// Singleton instance — strategies are stateless; no need to re-instantiate on every sort click.
+export const sortByDate = new SortByDate();
